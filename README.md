@@ -74,7 +74,7 @@ mvn spring-boot:run
 - Çoklu banka desteği
 - Harcama kategorilendirme
 - Aylık harcama grafikleri
-- Çoklu kart takibi
+- Aylık maaş ekleme ile gelir gider takibi
 
 ---
 
