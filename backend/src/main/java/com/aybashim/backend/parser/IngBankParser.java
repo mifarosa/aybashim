@@ -28,10 +28,11 @@ public class IngBankParser implements BankParser {
             if (matcher.find()) {
                 Transaction tx = new Transaction();
                 tx.setDate(LocalDate.parse(matcher.group(1), FORMATTER));
-                tx.setDescription(matcher.group(2).trim());
-                tx.setAmount(new BigDecimal(
-                    matcher.group(3).replace(".", "").replace(",", ".")
-                ));
+                String aciklama = matcher.group(2).trim();
+                aciklama = aciklama.replaceAll("\\s+\\d+\\.\\d+$", "").trim();
+                tx.setDescription(aciklama);
+                String tutarStr = matcher.group(3).replace(",", "");
+                tx.setAmount(new BigDecimal(tutarStr));
                 tx.setType(matcher.group(4) != null ? "CREDIT" : "DEBIT");
                 tx.setBankName("ING");
                 transactions.add(tx);
