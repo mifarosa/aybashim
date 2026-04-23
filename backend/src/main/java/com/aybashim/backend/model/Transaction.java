@@ -5,8 +5,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "transactions")
-public class Transaction {
+@Table(name = "transactions", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"date", "description", "amount", "type", "bank_name"})
+})public class Transaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

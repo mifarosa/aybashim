@@ -4,7 +4,8 @@ public class BankParserFactory {
 
     public static BankParser getParser(String bankName) {
         return switch (bankName.toUpperCase()) {
-            case "ING" -> new IngBankParser();
+            case "ING_CREDIT" -> new IngCreditParser();
+            case "ING_ACCOUNT" -> new IngAccountParser();
             default -> throw new IllegalArgumentException(
                 "Bilinmeyen banka: " + bankName
             );

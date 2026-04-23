@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class IngBankParser implements BankParser {
+public class IngCreditParser implements BankParser {
 
     private static final DateTimeFormatter FORMATTER = 
         DateTimeFormatter.ofPattern("dd/MM/yyyy");
