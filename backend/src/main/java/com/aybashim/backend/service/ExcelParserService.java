@@ -13,7 +13,7 @@ public class ExcelParserService {
 
     public List<Transaction> parseExcel(MultipartFile file, String bankName) throws IOException {
         return switch (bankName.toUpperCase()) {
-            case "GARANTI" -> new GarantiParser().parse(file.getInputStream());
+            case "GARANTI" -> new GarantiParser().parse(file.getInputStream(), file);
             default -> throw new IllegalArgumentException("Bilinmeyen banka: " + bankName);
         };
     }

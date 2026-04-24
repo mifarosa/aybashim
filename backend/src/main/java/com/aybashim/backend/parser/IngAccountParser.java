@@ -2,6 +2,7 @@ package com.aybashim.backend.parser;
 
 import com.aybashim.backend.model.Transaction;
 import org.jspecify.annotations.NonNull;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -21,7 +22,7 @@ public class IngAccountParser implements BankParser {
     );
 
     @Override
-    public List<Transaction> parse(String text) {
+    public List<Transaction> parse(String text, MultipartFile file) {
         List<Transaction> transactions = new ArrayList<>();
 
         List<String> blocks = new ArrayList<>();
@@ -42,7 +43,7 @@ public class IngAccountParser implements BankParser {
             System.out.println("BLOCK: " + block);
             Matcher matcher = LINE_PATTERN.matcher(block.trim());
             if (matcher.find()) {
-                Transaction tx = getTransaction(matcher);
+                Transaction tx = getTransaction(matcher, file);
                 transactions.add(tx);
             }
         }
@@ -50,7 +51,7 @@ public class IngAccountParser implements BankParser {
         return transactions;
     }
 
-    private static @NonNull Transaction getTransaction(Matcher matcher) {
+    private static @NonNull Transaction getTransaction(Matcher matcher, MultipartFile file) {
         String tutarStr = matcher.group(3)
                 .replace(",", "");
 
@@ -59,6 +60,7 @@ public class IngAccountParser implements BankParser {
 
         Transaction tx = new Transaction();
         tx.setDate(LocalDate.parse(matcher.group(1), FORMATTER));
+        tx.setSourceFile(file.getOriginalFilename());
         tx.setDescription(matcher.group(2).trim());
         tx.setAmount(amount.abs());
         tx.setType(type);

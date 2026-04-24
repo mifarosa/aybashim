@@ -1,6 +1,7 @@
 package com.aybashim.backend.parser;
 
 import com.aybashim.backend.model.Transaction;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -20,7 +21,7 @@ public class IngCreditParser implements BankParser {
     );
 
     @Override
-    public List<Transaction> parse(String text) {
+    public List<Transaction> parse(String text, MultipartFile file) {
         List<Transaction> transactions = new ArrayList<>();
 
         for (String line : text.split("\n")) {
@@ -33,6 +34,7 @@ public class IngCreditParser implements BankParser {
                 tx.setDescription(aciklama);
                 String tutarStr = matcher.group(3).replace(",", "");
                 tx.setAmount(new BigDecimal(tutarStr));
+                tx.setSourceFile(file.getOriginalFilename());
                 tx.setType(matcher.group(4) != null ? "CREDIT" : "DEBIT");
                 tx.setBankName("ING");
                 transactions.add(tx);

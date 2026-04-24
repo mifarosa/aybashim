@@ -22,6 +22,6 @@ public class PdfParserService {
         document.close();
 
         BankParser parser = BankParserFactory.getParser(bankName);
-        return parser.parse(text);
+        return parser.parse(text, file);
     }
 }

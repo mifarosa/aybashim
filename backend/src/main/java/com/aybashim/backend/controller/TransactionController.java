@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -39,7 +40,8 @@ public class TransactionController {
             @RequestParam("file") MultipartFile file,
             @RequestParam("bankName") String bankName) throws IOException {
 
-        return parserService.parsePdf(file, bankName);
+        List<Transaction> transactions = parserService.parsePdf(file, bankName);
+        return service.saveAll(transactions);
     }
 
     @PostMapping("/upload/excel")
@@ -47,6 +49,36 @@ public class TransactionController {
             @RequestParam("file") MultipartFile file,
             @RequestParam("bankName") String bankName) throws IOException {
 
-        return excelParserService.parseExcel(file, bankName);
+        List<Transaction> transactions = excelParserService.parseExcel(file, bankName);
+        return service.saveAll(transactions);
+    }
+
+    @GetMapping("/bank/{bankName}")
+    public List<Transaction> getByBank(@PathVariable String bankName) {
+        return service.getByBank(bankName);
+    }
+
+    @GetMapping("/type/{type}")
+    public List<Transaction> getByType(@PathVariable String type) {
+        return service.getByType(type);
+    }
+
+    @GetMapping("/date")
+    public List<Transaction> getByDateRange(
+            @RequestParam LocalDate start,
+            @RequestParam LocalDate end) {
+        return service.getByDateRange(start, end);
+    }
+
+    @GetMapping("/bank/{bankName}/type/{type}")
+    public List<Transaction> getByBankAndType(
+            @PathVariable String bankName,
+            @PathVariable String type) {
+        return service.getByBankAndType(bankName, type);
+    }
+
+    @GetMapping("/search")
+    public List<Transaction> getByDescription(@RequestParam String keyword) {
+        return service.getByDescription(keyword);
     }
 }
