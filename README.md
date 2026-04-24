@@ -2,11 +2,11 @@
 
 > 🚧 **Bu proje aktif geliştirme aşamasındadır.**
 
-Banka kredi kartı ekstrelerini PDF formatında yükleyerek harcamalarınızı otomatik olarak analiz eden ve veritabanında takip eden web uygulaması.
+Banka ekstrelerini PDF ve Excel formatında yükleyerek harcamalarınızı otomatik olarak analiz eden ve veritabanında takip eden kişisel web uygulaması.
 
 ---
 
-A web application that automatically analyzes and tracks your expenses by parsing bank credit card statements in PDF format.
+A personal web application that automatically analyzes and tracks your expenses by parsing bank statements in PDF and Excel formats.
 
 ---
 
@@ -18,6 +18,7 @@ A web application that automatically analyzes and tracks your expenses by parsin
 - Spring Data JPA
 - PostgreSQL
 - Apache PDFBox
+- Apache POI
 
 **Frontend**
 - Vue.js
@@ -26,11 +27,11 @@ A web application that automatically analyzes and tracks your expenses by parsin
 
 ## 🏦 Desteklenen Bankalar / Supported Banks
 
-| Banka | Durum |
-|-------|-------|
-| ING   | ✅ Aktif |
-
-Yeni banka desteği yakında eklenecektir.
+| Banka | Format | Tür | Durum |
+|-------|--------|-----|-------|
+| ING | PDF | Kredi Kartı Ekstresi | ✅ Aktif |
+| ING | PDF | Hesap Ekstresi | ✅ Aktif |
+| Garanti BBVA | XLS | Hesap Ekstresi | ✅ Aktif |
 
 ---
 
@@ -63,18 +64,20 @@ mvn spring-boot:run
 
 ## 📌 Mevcut Özellikler / Current Features
 
-- PDF ekstre yükleme
+- PDF ve Excel ekstre yükleme
 - ING kredi kartı ekstresi parse etme
+- ING hesap ekstresi parse etme
+- Garanti BBVA hesap ekstresi parse etme
+- Duplicate kayıt koruması
 - İşlemleri PostgreSQL'e kaydetme
 - REST API
 
 ## 🔜 Yakında / Upcoming
 
 - Vue.js arayüzü
-- Çoklu banka desteği
 - Harcama kategorilendirme
 - Aylık harcama grafikleri
-- Aylık maaş ekleme ile gelir gider takibi
+- Gelir/gider takibi
 
 ---
 
