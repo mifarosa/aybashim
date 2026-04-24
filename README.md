@@ -33,8 +33,6 @@ A personal web application that automatically analyzes and tracks your expenses 
 | ING | PDF | Hesap Ekstresi | ✅ Aktif |
 | Garanti BBVA | XLS | Hesap Ekstresi | ✅ Aktif |
 
-Yeni banka desteği yakında eklenecektir.
-
 ---
 
 ## ⚙️ Kurulum / Setup
@@ -77,7 +75,6 @@ mvn spring-boot:run
 ## 🔜 Yakında / Upcoming
 
 - Vue.js arayüzü
-- Çoklu banka desteği
 - Harcama kategorilendirme
 - Aylık harcama grafikleri
 - Gelir/gider takibi
