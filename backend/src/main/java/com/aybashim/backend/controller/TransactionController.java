@@ -8,8 +8,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/transactions")
@@ -25,10 +27,10 @@ public class TransactionController {
         this.excelParserService = excelParserService;
     }
 
-    @GetMapping
-    public List<Transaction> getAll() {
-        return service.getAll();
-    }
+        @GetMapping
+        public List<Transaction> getAll() {
+            return service.getAll();
+        }
 
     @PostMapping
     public Transaction save(@RequestBody Transaction transaction) {
@@ -80,5 +82,10 @@ public class TransactionController {
     @GetMapping("/search")
     public List<Transaction> getByDescription(@RequestParam String keyword) {
         return service.getByDescription(keyword);
+    }
+
+    @GetMapping("/summary/monthly")
+    public Map<String, Map<String, BigDecimal>> getMonthlySummary() {
+        return service.getMonthlySummary();
     }
 }

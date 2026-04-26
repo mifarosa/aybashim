@@ -1,0 +1,422 @@
+{
+  "meta": {
+    "format": "httpie",
+    "version": "1.0.0",
+    "contentType": "collection",
+    "schema": "https://schema.httpie.io/1.0.0.json",
+    "docs": "https://httpie.io/r/help/export-from-httpie",
+    "source": "HTTPie Desktop 2025.2.0"
+  },
+  "entry": {
+    "name": "aybashim",
+    "icon": {
+      "color": "yellow",
+      "name": "rocket"
+    },
+    "auth": {
+      "type": "none"
+    },
+    "requests": [
+      {
+        "name": "Get All Transactions",
+        "url": "http://localhost:8080/api/transactions",
+        "method": "GET",
+        "headers": [],
+        "queryParams": [],
+        "pathParams": [],
+        "auth": {
+          "type": "inherited"
+        },
+        "body": {
+          "type": "none",
+          "file": {
+            "name": ""
+          },
+          "text": {
+            "value": "",
+            "format": "application/json"
+          },
+          "form": {
+            "isMultipart": false,
+            "fields": []
+          },
+          "graphql": {
+            "query": "",
+            "variables": ""
+          }
+        }
+      },
+      {
+        "name": "Upload ING Account",
+        "url": "http://localhost:8080/api/transactions/upload",
+        "method": "POST",
+        "headers": [],
+        "queryParams": [],
+        "pathParams": [],
+        "auth": {
+          "type": "inherited"
+        },
+        "body": {
+          "type": "form",
+          "file": {
+            "name": ""
+          },
+          "text": {
+            "value": "",
+            "format": "application/json"
+          },
+          "form": {
+            "isMultipart": true,
+            "fields": [
+              {
+                "name": "bankName",
+                "value": "ING_ACCOUNT",
+                "enabled": true,
+                "type": "text"
+              },
+              {
+                "name": "file",
+                "value": "",
+                "enabled": true,
+                "type": "file"
+              }
+            ]
+          },
+          "graphql": {
+            "query": "",
+            "variables": ""
+          }
+        }
+      },
+      {
+        "name": "Upload ING Credit",
+        "url": "http://localhost:8080/api/transactions/upload",
+        "method": "POST",
+        "headers": [],
+        "queryParams": [],
+        "pathParams": [],
+        "auth": {
+          "type": "inherited"
+        },
+        "body": {
+          "type": "form",
+          "file": {
+            "name": ""
+          },
+          "text": {
+            "value": "",
+            "format": "application/json"
+          },
+          "form": {
+            "isMultipart": true,
+            "fields": [
+              {
+                "name": "bankName",
+                "value": "ING_CREDIT",
+                "enabled": true,
+                "type": "text"
+              },
+              {
+                "name": "file",
+                "value": "",
+                "enabled": true,
+                "type": "file"
+              }
+            ]
+          },
+          "graphql": {
+            "query": "",
+            "variables": ""
+          }
+        }
+      },
+      {
+        "name": "Upload GARANTI Account",
+        "url": "http://localhost:8080/api/transactions/upload/excel",
+        "method": "POST",
+        "headers": [],
+        "queryParams": [],
+        "pathParams": [],
+        "auth": {
+          "type": "inherited"
+        },
+        "body": {
+          "type": "form",
+          "file": {
+            "name": ""
+          },
+          "text": {
+            "value": "",
+            "format": "application/json"
+          },
+          "form": {
+            "isMultipart": true,
+            "fields": [
+              {
+                "name": "bankName",
+                "value": "GARANTI",
+                "enabled": true,
+                "type": "text"
+              },
+              {
+                "name": "file",
+                "value": "",
+                "enabled": true,
+                "type": "file"
+              }
+            ]
+          },
+          "graphql": {
+            "query": "",
+            "variables": ""
+          }
+        }
+      },
+      {
+        "name": "Search All",
+        "url": "http://localhost:8080/api/transactions/search",
+        "method": "GET",
+        "headers": [],
+        "queryParams": [
+          {
+            "name": "keyword",
+            "value": "",
+            "enabled": true
+          }
+        ],
+        "pathParams": [],
+        "auth": {
+          "type": "inherited"
+        },
+        "body": {
+          "type": "none",
+          "file": {
+            "name": ""
+          },
+          "text": {
+            "value": "",
+            "format": "application/json"
+          },
+          "form": {
+            "isMultipart": false,
+            "fields": []
+          },
+          "graphql": {
+            "query": "",
+            "variables": ""
+          }
+        }
+      },
+      {
+        "name": "Search my name \"Mehmet Faruk Gül\"",
+        "url": "http://localhost:8080/api/transactions/search",
+        "method": "GET",
+        "headers": [],
+        "queryParams": [
+          {
+            "name": "keyword",
+            "value": "Mehmet Faruk Gül",
+            "enabled": true
+          }
+        ],
+        "pathParams": [],
+        "auth": {
+          "type": "inherited"
+        },
+        "body": {
+          "type": "none",
+          "file": {
+            "name": ""
+          },
+          "text": {
+            "value": "",
+            "format": "application/json"
+          },
+          "form": {
+            "isMultipart": false,
+            "fields": []
+          },
+          "graphql": {
+            "query": "",
+            "variables": ""
+          }
+        }
+      },
+      {
+        "name": "Search my income",
+        "url": "http://localhost:8080/api/transactions/search",
+        "method": "GET",
+        "headers": [],
+        "queryParams": [
+          {
+            "name": "keyword",
+            "value": "MAAS Salary Payment",
+            "enabled": true
+          }
+        ],
+        "pathParams": [],
+        "auth": {
+          "type": "inherited"
+        },
+        "body": {
+          "type": "none",
+          "file": {
+            "name": ""
+          },
+          "text": {
+            "value": "",
+            "format": "application/json"
+          },
+          "form": {
+            "isMultipart": false,
+            "fields": []
+          },
+          "graphql": {
+            "query": "",
+            "variables": ""
+          }
+        }
+      },
+      {
+        "name": "Search aidat",
+        "url": "http://localhost:8080/api/transactions/search",
+        "method": "GET",
+        "headers": [],
+        "queryParams": [
+          {
+            "name": "keyword",
+            "value": "AİDAT",
+            "enabled": true
+          }
+        ],
+        "pathParams": [],
+        "auth": {
+          "type": "inherited"
+        },
+        "body": {
+          "type": "none",
+          "file": {
+            "name": ""
+          },
+          "text": {
+            "value": "",
+            "format": "application/json"
+          },
+          "form": {
+            "isMultipart": false,
+            "fields": []
+          },
+          "graphql": {
+            "query": "",
+            "variables": ""
+          }
+        }
+      },
+      {
+        "name": "Search kiğra",
+        "url": "http://localhost:8080/api/transactions/search",
+        "method": "GET",
+        "headers": [],
+        "queryParams": [
+          {
+            "name": "keyword",
+            "value": "KİRA",
+            "enabled": true
+          }
+        ],
+        "pathParams": [],
+        "auth": {
+          "type": "inherited"
+        },
+        "body": {
+          "type": "none",
+          "file": {
+            "name": ""
+          },
+          "text": {
+            "value": "",
+            "format": "application/json"
+          },
+          "form": {
+            "isMultipart": false,
+            "fields": []
+          },
+          "graphql": {
+            "query": "",
+            "variables": ""
+          }
+        }
+      },
+      {
+        "name": "Search Gider",
+        "url": "http://localhost:8080/api/transactions/type/DEBIT",
+        "method": "GET",
+        "headers": [],
+        "queryParams": [
+          {
+            "name": "type",
+            "value": "DEBIT",
+            "enabled": false
+          }
+        ],
+        "pathParams": [],
+        "auth": {
+          "type": "inherited"
+        },
+        "body": {
+          "type": "none",
+          "file": {
+            "name": ""
+          },
+          "text": {
+            "value": "",
+            "format": "application/json"
+          },
+          "form": {
+            "isMultipart": false,
+            "fields": []
+          },
+          "graphql": {
+            "query": "",
+            "variables": ""
+          }
+        }
+      },
+      {
+        "name": "Search Gelir",
+        "url": "http://localhost:8080/api/transactions/type/CREDIT",
+        "method": "GET",
+        "headers": [],
+        "queryParams": [
+          {
+            "name": "type",
+            "value": "DEBIT",
+            "enabled": false
+          }
+        ],
+        "pathParams": [],
+        "auth": {
+          "type": "inherited"
+        },
+        "body": {
+          "type": "none",
+          "file": {
+            "name": ""
+          },
+          "text": {
+            "value": "",
+            "format": "application/json"
+          },
+          "form": {
+            "isMultipart": false,
+            "fields": []
+          },
+          "graphql": {
+            "query": "",
+            "variables": ""
+          }
+        }
+      }
+    ]
+  }
+}
