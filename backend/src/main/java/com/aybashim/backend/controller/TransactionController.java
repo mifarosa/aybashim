@@ -1,5 +1,7 @@
 package com.aybashim.backend.controller;
 
+import com.aybashim.backend.model.MainCategory;
+import com.aybashim.backend.model.SubCategory;
 import com.aybashim.backend.model.Transaction;
 import com.aybashim.backend.service.ExcelParserService;
 import com.aybashim.backend.service.PdfParserService;
@@ -10,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -27,10 +30,10 @@ public class TransactionController {
         this.excelParserService = excelParserService;
     }
 
-        @GetMapping
-        public List<Transaction> getAll() {
-            return service.getAll();
-        }
+    @GetMapping
+    public List<Transaction> getAll() {
+        return service.getAll();
+    }
 
     @PostMapping
     public Transaction save(@RequestBody Transaction transaction) {
@@ -55,6 +58,11 @@ public class TransactionController {
         return service.saveAll(transactions);
     }
 
+    @PostMapping("/recategorize")
+    public List<Transaction> recategorizeAll() {
+        return service.recategorizeAll();
+    }
+
     @GetMapping("/bank/{bankName}")
     public List<Transaction> getByBank(@PathVariable String bankName) {
         return service.getByBank(bankName);
@@ -63,6 +71,32 @@ public class TransactionController {
     @GetMapping("/type/{type}")
     public List<Transaction> getByType(@PathVariable String type) {
         return service.getByType(type);
+    }
+
+    @GetMapping("/categories/main")
+    public MainCategory[] getMainCategories() {
+        return MainCategory.values();
+    }
+
+    @GetMapping("/categories/sub")
+    public List<Map<String, String>> getSubCategories() {
+        return Arrays.stream(SubCategory.values())
+                .map(subCategory -> Map.of(
+                        "code", subCategory.name(),
+                        "displayName", subCategory.getDisplayName(),
+                        "mainCategory", subCategory.getMainCategory().name()
+                ))
+                .toList();
+    }
+
+    @GetMapping("/main-category/{mainCategory}")
+    public List<Transaction> getByMainCategory(@PathVariable MainCategory mainCategory) {
+        return service.getByMainCategory(mainCategory);
+    }
+
+    @GetMapping("/sub-category/{subCategory}")
+    public List<Transaction> getBySubCategory(@PathVariable SubCategory subCategory) {
+        return service.getBySubCategory(subCategory);
     }
 
     @GetMapping("/date")

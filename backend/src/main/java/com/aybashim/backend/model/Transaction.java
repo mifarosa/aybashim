@@ -7,7 +7,8 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "transactions", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"date", "description", "amount", "type", "bank_name"})
-})public class Transaction {
+})
+public class Transaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,6 +25,12 @@ import java.time.LocalDate;
 
     @Column(nullable = false)
     private String type;
+
+    @Enumerated(EnumType.STRING)
+    private MainCategory mainCategory;
+
+    @Enumerated(EnumType.STRING)
+    private SubCategory subCategory;
 
     private String bankName;
     private String sourceFile;
@@ -43,6 +50,12 @@ import java.time.LocalDate;
 
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
+
+    public MainCategory getMainCategory() { return mainCategory; }
+    public void setMainCategory(MainCategory mainCategory) { this.mainCategory = mainCategory; }
+
+    public SubCategory getSubCategory() { return subCategory; }
+    public void setSubCategory(SubCategory subCategory) { this.subCategory = subCategory; }
 
     public String getBankName() { return bankName; }
     public void setBankName(String bankName) { this.bankName = bankName; }
