@@ -23,6 +23,10 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     List<Transaction> findByDateBetween(LocalDate start, LocalDate end);
 
+    List<Transaction> findByDateBetweenAndMainCategory(LocalDate start, LocalDate end, MainCategory mainCategory);
+
+    List<Transaction> findByDateBetweenAndSubCategory(LocalDate start, LocalDate end, SubCategory subCategory);
+
     List<Transaction> findByBankNameAndType(String bankName, String type);
 
     List<Transaction> findByDescriptionContainingIgnoreCase(String keyword);
@@ -35,6 +39,30 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             "GROUP BY FUNCTION('TO_CHAR', t.date, 'YYYY-MM'), t.type " +
             "ORDER BY month")
     List<Object[]> getMonthlySummary(
+            @Param("keyword") String keyword,
+            @Param("ignoredSubCategory") SubCategory ignoredSubCategory);
+
+    @Query("SELECT FUNCTION('TO_CHAR', t.date, 'YYYY-MM') as month, " +
+            "t.mainCategory, SUM(t.amount) as total " +
+            "FROM Transaction t " +
+            "WHERE t.mainCategory IS NOT NULL " +
+            "AND (t.subCategory IS NULL OR t.subCategory <> :ignoredSubCategory) " +
+            "AND NOT (t.type = 'DEBIT' AND LOWER(t.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+            "GROUP BY FUNCTION('TO_CHAR', t.date, 'YYYY-MM'), t.mainCategory " +
+            "ORDER BY month")
+    List<Object[]> getMonthlyMainCategorySummary(
+            @Param("keyword") String keyword,
+            @Param("ignoredSubCategory") SubCategory ignoredSubCategory);
+
+    @Query("SELECT FUNCTION('TO_CHAR', t.date, 'YYYY-MM') as month, " +
+            "t.subCategory, SUM(t.amount) as total " +
+            "FROM Transaction t " +
+            "WHERE t.subCategory IS NOT NULL " +
+            "AND t.subCategory <> :ignoredSubCategory " +
+            "AND NOT (t.type = 'DEBIT' AND LOWER(t.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+            "GROUP BY FUNCTION('TO_CHAR', t.date, 'YYYY-MM'), t.subCategory " +
+            "ORDER BY month")
+    List<Object[]> getMonthlySubCategorySummary(
             @Param("keyword") String keyword,
             @Param("ignoredSubCategory") SubCategory ignoredSubCategory);
 }

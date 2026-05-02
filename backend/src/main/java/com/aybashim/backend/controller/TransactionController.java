@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -106,6 +107,20 @@ public class TransactionController {
         return service.getByDateRange(start, end);
     }
 
+    @GetMapping("/month/{month}/main-category/{mainCategory}")
+    public List<Transaction> getByMonthAndMainCategory(
+            @PathVariable String month,
+            @PathVariable MainCategory mainCategory) {
+        return service.getByMonthAndMainCategory(YearMonth.parse(month), mainCategory);
+    }
+
+    @GetMapping("/month/{month}/sub-category/{subCategory}")
+    public List<Transaction> getByMonthAndSubCategory(
+            @PathVariable String month,
+            @PathVariable SubCategory subCategory) {
+        return service.getByMonthAndSubCategory(YearMonth.parse(month), subCategory);
+    }
+
     @GetMapping("/bank/{bankName}/type/{type}")
     public List<Transaction> getByBankAndType(
             @PathVariable String bankName,
@@ -121,5 +136,15 @@ public class TransactionController {
     @GetMapping("/summary/monthly")
     public Map<String, Map<String, BigDecimal>> getMonthlySummary() {
         return service.getMonthlySummary();
+    }
+
+    @GetMapping("/summary/monthly/main-category")
+    public Map<String, Map<String, BigDecimal>> getMonthlyMainCategorySummary() {
+        return service.getMonthlyMainCategorySummary();
+    }
+
+    @GetMapping("/summary/monthly/sub-category")
+    public Map<String, Map<String, BigDecimal>> getMonthlySubCategorySummary() {
+        return service.getMonthlySubCategorySummary();
     }
 }

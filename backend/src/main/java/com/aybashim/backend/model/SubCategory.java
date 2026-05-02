@@ -51,6 +51,7 @@ public enum SubCategory {
 
     BANK_FEE("Banka Kesintisi", MainCategory.BANK_FEES),
 
+    GIFT("Hediye", MainCategory.OTHER),
     UNKNOWN("Bilinmeyen", MainCategory.OTHER);
 
     private final String displayName;

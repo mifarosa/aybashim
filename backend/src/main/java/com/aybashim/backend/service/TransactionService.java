@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -93,6 +94,30 @@ public class TransactionService {
         return filterExcluded(repository.findByDateBetween(start, end));
     }
 
+    public List<Transaction> getByMonthAndMainCategory(YearMonth month, MainCategory mainCategory) {
+        return filterExcluded(repository.findByDateBetweenAndMainCategory(
+                month.atDay(1),
+                month.atEndOfMonth(),
+                mainCategory
+        ));
+    }
+
+    public List<Transaction> getByMonthAndSubCategory(YearMonth month, SubCategory subCategory) {
+        if (subCategory == SubCategory.SELF_TRANSFER) {
+            return repository.findByDateBetweenAndSubCategory(
+                    month.atDay(1),
+                    month.atEndOfMonth(),
+                    subCategory
+            );
+        }
+
+        return filterExcluded(repository.findByDateBetweenAndSubCategory(
+                month.atDay(1),
+                month.atEndOfMonth(),
+                subCategory
+        ));
+    }
+
     public List<Transaction> getByBankAndType(String bankName, String type) {
         return filterExcluded(repository.findByBankNameAndType(bankName, type));
     }
@@ -102,15 +127,27 @@ public class TransactionService {
     }
 
     public Map<String, Map<String, BigDecimal>> getMonthlySummary() {
+        return toMonthlySummary(repository.getMonthlySummary(excludeKeywords.trim(), SubCategory.SELF_TRANSFER));
+    }
+
+    public Map<String, Map<String, BigDecimal>> getMonthlyMainCategorySummary() {
+        return toMonthlySummary(repository.getMonthlyMainCategorySummary(excludeKeywords.trim(), SubCategory.SELF_TRANSFER));
+    }
+
+    public Map<String, Map<String, BigDecimal>> getMonthlySubCategorySummary() {
+        return toMonthlySummary(repository.getMonthlySubCategorySummary(excludeKeywords.trim(), SubCategory.SELF_TRANSFER));
+    }
+
+    private Map<String, Map<String, BigDecimal>> toMonthlySummary(List<Object[]> rows) {
         Map<String, Map<String, BigDecimal>> summary = new LinkedHashMap<>();
 
-        for (Object[] row : repository.getMonthlySummary(excludeKeywords.trim(), SubCategory.SELF_TRANSFER)) {
+        for (Object[] row : rows) {
             String month = (String) row[0];
-            String type  = (String) row[1];
+            String category = row[1].toString();
             BigDecimal total = (BigDecimal) row[2];
 
-            summary.computeIfAbsent(month, k -> new HashMap<>())
-                    .put(type, total);
+            summary.computeIfAbsent(month, k -> new LinkedHashMap<>())
+                    .put(category, total);
         }
 
         return summary;

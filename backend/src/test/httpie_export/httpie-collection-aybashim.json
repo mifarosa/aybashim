@@ -10,8 +10,8 @@
   "entry": {
     "name": "aybashim",
     "icon": {
-      "color": "yellow",
-      "name": "rocket"
+      "name": "rocket",
+      "color": "yellow"
     },
     "auth": {
       "type": "none"
@@ -132,7 +132,7 @@
       },
       {
         "name": "Upload GARANTI Account",
-        "url": "http://localhost:8080/api/transactions/upload/excel",
+        "url": "http://localhost:8080/api/transactions/recategorize",
         "method": "POST",
         "headers": [],
         "queryParams": [],
@@ -394,6 +394,180 @@
             "enabled": false
           }
         ],
+        "pathParams": [],
+        "auth": {
+          "type": "inherited"
+        },
+        "body": {
+          "type": "none",
+          "file": {
+            "name": ""
+          },
+          "text": {
+            "value": "",
+            "format": "application/json"
+          },
+          "form": {
+            "isMultipart": false,
+            "fields": []
+          },
+          "graphql": {
+            "query": "",
+            "variables": ""
+          }
+        }
+      },
+      {
+        "name": "Get Categories",
+        "url": "http://localhost:8080/api/transactions/categories/main",
+        "method": "GET",
+        "headers": [],
+        "queryParams": [],
+        "pathParams": [],
+        "auth": {
+          "type": "inherited"
+        },
+        "body": {
+          "type": "none",
+          "file": {
+            "name": ""
+          },
+          "text": {
+            "value": "",
+            "format": "application/json"
+          },
+          "form": {
+            "isMultipart": false,
+            "fields": []
+          },
+          "graphql": {
+            "query": "",
+            "variables": ""
+          }
+        }
+      },
+      {
+        "name": "Get sub-categories",
+        "url": "http://localhost:8080/api/transactions/categories/sub",
+        "method": "GET",
+        "headers": [],
+        "queryParams": [],
+        "pathParams": [],
+        "auth": {
+          "type": "inherited"
+        },
+        "body": {
+          "type": "none",
+          "file": {
+            "name": ""
+          },
+          "text": {
+            "value": "",
+            "format": "application/json"
+          },
+          "form": {
+            "isMultipart": false,
+            "fields": []
+          },
+          "graphql": {
+            "query": "",
+            "variables": ""
+          }
+        }
+      },
+      {
+        "name": "Get ReCategorize",
+        "url": "http://localhost:8080/api/transactions/month/2026-04/main-category/TRANSFER",
+        "method": "GET",
+        "headers": [],
+        "queryParams": [],
+        "pathParams": [],
+        "auth": {
+          "type": "inherited"
+        },
+        "body": {
+          "type": "none",
+          "file": {
+            "name": ""
+          },
+          "text": {
+            "value": "",
+            "format": "application/json"
+          },
+          "form": {
+            "isMultipart": false,
+            "fields": []
+          },
+          "graphql": {
+            "query": "",
+            "variables": ""
+          }
+        }
+      },
+      {
+        "name": "Get Not Categorized",
+        "url": "http://localhost:8080/api/transactions/sub-category/UNKNOWN",
+        "method": "GET",
+        "headers": [],
+        "queryParams": [],
+        "pathParams": [],
+        "auth": {
+          "type": "inherited"
+        },
+        "body": {
+          "type": "none",
+          "file": {
+            "name": ""
+          },
+          "text": {
+            "value": "",
+            "format": "application/json"
+          },
+          "form": {
+            "isMultipart": false,
+            "fields": []
+          },
+          "graphql": {
+            "query": "",
+            "variables": ""
+          }
+        }
+      },
+      {
+        "name": "Get Monthly Main",
+        "url": "http://localhost:8080/api/transactions/sub-category/UNKNOWN",
+        "method": "GET",
+        "headers": [],
+        "queryParams": [],
+        "pathParams": [],
+        "auth": {
+          "type": "inherited"
+        },
+        "body": {
+          "type": "none",
+          "file": {
+            "name": ""
+          },
+          "text": {
+            "value": "",
+            "format": "application/json"
+          },
+          "form": {
+            "isMultipart": false,
+            "fields": []
+          },
+          "graphql": {
+            "query": "",
+            "variables": ""
+          }
+        }
+      },
+      {
+        "name": "Get Unknown",
+        "url": "http://localhost:8080/api/transactions/sub-category/UNKNOWN",
+        "method": "GET",
+        "headers": [],
+        "queryParams": [],
         "pathParams": [],
         "auth": {
           "type": "inherited"

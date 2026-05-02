@@ -84,6 +84,10 @@ public class CategoryClassifier {
             return SubCategory.RENT;
         }
 
+        if (description.contains("altin karsiligi")) {
+            return SubCategory.GIFT;
+        }
+
         if (isTransferDescription(description) && containsSelfTransferKeyword(description)) {
             return SubCategory.SELF_TRANSFER;
         }
