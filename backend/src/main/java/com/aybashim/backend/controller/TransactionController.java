@@ -64,11 +64,6 @@ public class TransactionController {
         return service.recategorizeAll();
     }
 
-    @PostMapping("/claim-unassigned")
-    public List<Transaction> claimUnassigned() {
-        return service.claimUnassigned();
-    }
-
     @GetMapping("/bank/{bankName}")
     public List<Transaction> getByBank(@PathVariable String bankName) {
         return service.getByBank(bankName);

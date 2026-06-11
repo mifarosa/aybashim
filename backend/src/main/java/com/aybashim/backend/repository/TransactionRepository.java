@@ -16,8 +16,6 @@ import java.util.List;
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
     List<Transaction> findByUser(AppUser user);
 
-    List<Transaction> findByUserIsNull();
-
     List<Transaction> findByUserAndBankName(AppUser user, String bankName);
 
     List<Transaction> findByUserAndType(AppUser user, String type);

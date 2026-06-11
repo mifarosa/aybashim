@@ -75,13 +75,6 @@ public class TransactionService {
         return repository.saveAll(transactions);
     }
 
-    public List<Transaction> claimUnassigned() {
-        AppUser user = currentUser.get();
-        List<Transaction> transactions = repository.findByUserIsNull();
-        transactions.forEach(transaction -> transaction.setUser(user));
-        return repository.saveAll(transactions);
-    }
-
     public List<Transaction> getByBank(String bankName) {
         return filterExcluded(repository.findByUserAndBankName(currentUser.get(), bankName));
     }
