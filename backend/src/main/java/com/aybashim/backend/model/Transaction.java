@@ -1,12 +1,13 @@
 package com.aybashim.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "transactions", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"date", "description", "amount", "type", "bank_name"})
+        @UniqueConstraint(columnNames = {"user_id", "date", "description", "amount", "type", "bank_name"})
 })
 public class Transaction {
 
@@ -32,6 +33,11 @@ public class Transaction {
     @Enumerated(EnumType.STRING)
     private SubCategory subCategory;
 
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private AppUser user;
+
     private String bankName;
     private String sourceFile;
 
@@ -56,6 +62,9 @@ public class Transaction {
 
     public SubCategory getSubCategory() { return subCategory; }
     public void setSubCategory(SubCategory subCategory) { this.subCategory = subCategory; }
+
+    public AppUser getUser() { return user; }
+    public void setUser(AppUser user) { this.user = user; }
 
     public String getBankName() { return bankName; }
     public void setBankName(String bankName) { this.bankName = bankName; }
