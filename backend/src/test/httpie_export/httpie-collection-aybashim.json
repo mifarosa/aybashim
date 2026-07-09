@@ -132,7 +132,7 @@
       },
       {
         "name": "Upload GARANTI Account",
-        "url": "http://localhost:8080/api/transactions/recategorize",
+        "url": "http://localhost:8080/api/transactions/upload/excel",
         "method": "POST",
         "headers": [],
         "queryParams": [],
@@ -208,14 +208,14 @@
         }
       },
       {
-        "name": "Search my name \"Mehmet Faruk Gül\"",
+        "name": "Search self transfer keyword",
         "url": "http://localhost:8080/api/transactions/search",
         "method": "GET",
         "headers": [],
         "queryParams": [
           {
             "name": "keyword",
-            "value": "Mehmet Faruk Gül",
+            "value": "Sample User",
             "enabled": true
           }
         ],

@@ -1,17 +1,21 @@
 package com.aybashim.backend.service;
 
+import com.aybashim.backend.dto.TransactionImportResponse;
 import com.aybashim.backend.model.AppUser;
-import com.aybashim.backend.model.Transaction;
 import com.aybashim.backend.model.MainCategory;
 import com.aybashim.backend.model.SubCategory;
+import com.aybashim.backend.model.Transaction;
 import com.aybashim.backend.repository.TransactionRepository;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,9 +25,6 @@ public class TransactionService {
     private final CategoryClassifier categoryClassifier;
     private final CurrentUser currentUser;
 
-    @Value("${app.exclude.keywords}")
-    private String excludeKeywords;
-
     public TransactionService(TransactionRepository repository, CategoryClassifier categoryClassifier, CurrentUser currentUser) {
         this.repository = repository;
         this.categoryClassifier = categoryClassifier;
@@ -31,16 +32,8 @@ public class TransactionService {
     }
 
     private List<Transaction> filterExcluded(List<Transaction> transactions) {
-        List<String> keywords = Arrays.asList(excludeKeywords.split(","));
         return transactions.stream()
-                .filter(tx -> {
-                    System.out.println("Filtering: " + tx.getDescription() + " | " + tx.getType());
-                    if (tx.getSubCategory() == SubCategory.SELF_TRANSFER) return false;
-                    if (!tx.getType().equals("DEBIT")) return true;
-                    return keywords.stream()
-                            .noneMatch(kw -> tx.getDescription().toLowerCase()
-                                    .contains(kw.trim().toLowerCase()));
-                })
+                .filter(tx -> tx.getSubCategory() != SubCategory.SELF_TRANSFER)
                 .collect(Collectors.toList());
     }
 
@@ -49,29 +42,34 @@ public class TransactionService {
     }
 
     public Transaction save(Transaction transaction) {
-        transaction.setUser(currentUser.get());
-        categoryClassifier.categorize(transaction);
+        AppUser user = currentUser.get();
+        transaction.setUser(user);
+        categoryClassifier.categorize(transaction, user.getName());
         return repository.save(transaction);
     }
 
-    public List<Transaction> saveAll(List<Transaction> transactions) {
-        System.out.println("excludeKeywords: " + excludeKeywords);
+    public TransactionImportResponse saveAll(List<Transaction> transactions) {
+        AppUser user = currentUser.get();
         List<Transaction> saved = new ArrayList<>();
+        int duplicateCount = 0;
+
         for (Transaction tx : transactions) {
             try {
-                tx.setUser(currentUser.get());
-                categoryClassifier.categorize(tx);
+                tx.setUser(user);
+                categoryClassifier.categorize(tx, user.getName());
                 saved.add(repository.save(tx));
-            } catch (Exception e) {
-                System.out.println("Duplicate atlandı: " + tx.getDescription() + " - " + tx.getDate());
+            } catch (DataIntegrityViolationException e) {
+                duplicateCount++;
             }
         }
-        return saved;
+
+        return new TransactionImportResponse(transactions.size(), saved.size(), duplicateCount, saved);
     }
 
     public List<Transaction> recategorizeAll() {
-        List<Transaction> transactions = repository.findByUser(currentUser.get());
-        transactions.forEach(categoryClassifier::recategorize);
+        AppUser user = currentUser.get();
+        List<Transaction> transactions = repository.findByUser(user);
+        transactions.forEach(transaction -> categoryClassifier.recategorize(transaction, user.getName()));
         return repository.saveAll(transactions);
     }
 
@@ -89,10 +87,14 @@ public class TransactionService {
 
     public List<Transaction> getBySubCategory(SubCategory subCategory) {
         if (subCategory == SubCategory.SELF_TRANSFER) {
-            return repository.findByUserAndSubCategory(currentUser.get(), subCategory);
+            return getSelfTransfers();
         }
 
         return filterExcluded(repository.findByUserAndSubCategory(currentUser.get(), subCategory));
+    }
+
+    public List<Transaction> getSelfTransfers() {
+        return repository.findByUserAndSubCategory(currentUser.get(), SubCategory.SELF_TRANSFER);
     }
 
     public List<Transaction> getByDateRange(LocalDate start, LocalDate end) {
@@ -135,15 +137,18 @@ public class TransactionService {
     }
 
     public Map<String, Map<String, BigDecimal>> getMonthlySummary() {
-        return toMonthlySummary(repository.getMonthlySummary(currentUser.get(), excludeKeywords.trim(), SubCategory.SELF_TRANSFER));
+        AppUser user = currentUser.get();
+        return toMonthlySummary(repository.getMonthlySummary(user, user.getName(), SubCategory.SELF_TRANSFER));
     }
 
     public Map<String, Map<String, BigDecimal>> getMonthlyMainCategorySummary() {
-        return toMonthlySummary(repository.getMonthlyMainCategorySummary(currentUser.get(), excludeKeywords.trim(), SubCategory.SELF_TRANSFER));
+        AppUser user = currentUser.get();
+        return toMonthlySummary(repository.getMonthlyMainCategorySummary(user, user.getName(), SubCategory.SELF_TRANSFER));
     }
 
     public Map<String, Map<String, BigDecimal>> getMonthlySubCategorySummary() {
-        return toMonthlySummary(repository.getMonthlySubCategorySummary(currentUser.get(), excludeKeywords.trim(), SubCategory.SELF_TRANSFER));
+        AppUser user = currentUser.get();
+        return toMonthlySummary(repository.getMonthlySubCategorySummary(user, user.getName(), SubCategory.SELF_TRANSFER));
     }
 
     private Map<String, Map<String, BigDecimal>> toMonthlySummary(List<Object[]> rows) {

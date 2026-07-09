@@ -1,16 +1,10 @@
-# aybashim 💳
+# aybashim
 
-> 🚧 **Bu proje aktif geliştirme aşamasındadır.**
+> Bu proje aktif geliştirme aşamasındadır.
 
-Banka ekstrelerini PDF ve Excel formatında yükleyerek harcamalarınızı otomatik olarak analiz eden, kategorilendiren ve veritabanında takip eden kişisel web uygulaması.
+Kişisel finans takibi için geliştirilen bir backend uygulaması. Banka ekstrelerini PDF veya Excel formatında yükler, işlemleri parse eder, otomatik kategorilendirir ve kullanıcı bazlı olarak PostgreSQL veritabanında saklar.
 
----
-
-A personal web application that automatically analyzes, categorizes, and tracks your expenses by parsing bank statements in PDF and Excel formats.
-
----
-
-## 🛠️ Teknolojiler / Tech Stack
+## Tech Stack
 
 **Backend**
 - Java 21
@@ -22,152 +16,160 @@ A personal web application that automatically analyzes, categorizes, and tracks 
 
 **Frontend**
 - Vue.js
+- Vite
 
----
+## Desteklenen Ekstreler
 
-## 🏦 Desteklenen Bankalar / Supported Banks
+| Banka | Format | Tür | Upload Değeri |
+| --- | --- | --- | --- |
+| ING | PDF | Kredi kartı ekstresi | `ING_CREDIT` |
+| ING | PDF | Hesap ekstresi | `ING_ACCOUNT` |
+| A101 Hadi | PDF | Kart ekstresi | `HADI` |
+| Garanti BBVA | XLS | Hesap ekstresi | `GARANTI` |
 
-| Banka | Format | Tür | Durum |
-|-------|--------|-----|-------|
-| ING | PDF | Kredi Kartı Ekstresi | ✅ Aktif |
-| ING | PDF | Hesap Ekstresi | ✅ Aktif |
-| Garanti BBVA | XLS | Hesap Ekstresi | ✅ Aktif |
+## Mevcut Özellikler
 
----
-
-## 📌 Mevcut Özellikler / Current Features
-
+- Kullanıcı kayıt ve giriş API'si
+- Bearer token ile `/api/**` endpoint koruması
 - PDF ve Excel ekstre yükleme
-- ING kredi kartı ekstresi parse etme
-- ING hesap ekstresi parse etme
+- ING kredi kartı ve hesap ekstresi parse etme
 - Garanti BBVA hesap ekstresi parse etme
 - Duplicate kayıt koruması
-- İşlemleri PostgreSQL'e kaydetme
-- REST API
-- Otomatik harcama kategorilendirme
+- İşlemleri kullanıcı bazlı PostgreSQL'e kaydetme
+- Keyword tabanlı otomatik kategori atama
 - Ana kategori ve alt kategori desteği
-- Kategoriye göre işlem listeleme
+- Kategori, tarih, banka, tip ve açıklamaya göre filtreleme
 - Mevcut işlemleri yeniden kategorilendirme
-- Kişinin kendi hesapları arasındaki transferleri ayırt etme
+- Kullanıcının tam adına göre kendi hesapların arasındaki transferleri ayırt etme
+- Kendine yapılan transferleri ayrıca listeleme
+- Aylık gelir/gider ve kategori özetleri
+- Vue tabanlı web arayüzü
 
----
+## API
 
-## 🧾 Kategorilendirme / Categorization
-
-Uygulama, yüklenen banka işlemlerini açıklama metinlerine göre otomatik olarak kategorilendirir.
-
-Her işlem için iki kategori bilgisi tutulur:
-
-- **Ana kategori / Main Category**
-- **Alt kategori / Sub Category**
-
-Örnek kategoriler:
-
-| Ana Kategori | Alt Kategori Örnekleri |
-|-------------|-------------------------|
-| Gelir | Maaş, Diğer Gelir |
-| Gıda | Market, Restoran, Kahve |
-| Faturalar | Elektrik, Su, Doğalgaz, İnternet, Telefon |
-| Ulaşım | Akaryakıt, Toplu Taşıma, Taksi |
-| Alışveriş | Giyim, Elektronik, Online Alışveriş |
-| Sağlık | Eczane, Hastane |
-| Eğitim | Okul, Kurs, Kitap |
-| Abonelik | Dijital Abonelik, Yazılım Aboneliği |
-| Transfer | EFT, Havale, FAST, Kendi Hesapları Arası Transfer |
-| Banka Masrafları | Banka Ücreti, Faiz |
-| Diğer | Bilinmeyen |
-
-Kategori belirleme işlemi keyword tabanlıdır. Örneğin market, abonelik, fatura, ulaşım ve transfer işlemleri açıklama metnine göre otomatik olarak sınıflandırılır.
-
----
-
-## 🔁 Yeniden Kategorilendirme / Recategorization
-
-Mevcut işlemler sonradan yeniden kategorilendirilebilir.
-
-Bu özellik, kategori kuralları güncellendiğinde daha önce kaydedilmiş işlemlere yeni kuralların uygulanmasını sağlar.
-
----
-
-## 🔌 API Endpointleri / API Endpoints
-
-Temel transaction endpointlerine ek olarak kategori işlemleri için aşağıdaki endpointler desteklenir:
+Auth:
 
 ```http
-POST /transactions/recategorize
-GET  /transactions/categories/main
-GET  /transactions/categories/sub
-GET  /transactions/main-category/{mainCategory}
-GET  /transactions/sub-category/{subCategory}
+POST /api/auth/register
+POST /api/auth/login
 ```
 
-### Açıklama
+Transaction:
 
-| Endpoint | Açıklama |
-|---------|----------|
-| `POST /transactions/recategorize` | Tüm mevcut işlemleri yeniden kategorilendirir |
-| `GET /transactions/categories/main` | Ana kategori listesini döndürür |
-| `GET /transactions/categories/sub` | Alt kategori listesini döndürür |
-| `GET /transactions/main-category/{mainCategory}` | Ana kategoriye göre işlemleri listeler |
-| `GET /transactions/sub-category/{subCategory}` | Alt kategoriye göre işlemleri listeler |
+```http
+GET  /api/transactions
+POST /api/transactions
+POST /api/transactions/upload
+POST /api/transactions/upload/excel
+POST /api/transactions/recategorize
+GET  /api/transactions/bank/{bankName}
+GET  /api/transactions/type/{type}
+GET  /api/transactions/date?start=2026-01-01&end=2026-01-31
+GET  /api/transactions/search?keyword=market
+GET  /api/transactions/categories/main
+GET  /api/transactions/categories/sub
+GET  /api/transactions/main-category/{mainCategory}
+GET  /api/transactions/sub-category/{subCategory}
+GET  /api/transactions/self-transfers
+GET  /api/transactions/month/{yyyy-MM}/main-category/{mainCategory}
+GET  /api/transactions/month/{yyyy-MM}/sub-category/{subCategory}
+GET  /api/transactions/summary/monthly
+GET  /api/transactions/summary/monthly/main-category
+GET  /api/transactions/summary/monthly/sub-category
+```
 
----
+Upload response'u kaydedilen ve duplicate olduğu için atlanan kayıt sayılarını içerir:
 
-## ⚙️ Kurulum / Setup
+```json
+{
+  "parsedCount": 12,
+  "savedCount": 10,
+  "duplicateCount": 2,
+  "savedTransactions": []
+}
+```
 
-### Gereksinimler / Requirements
+## Konfigürasyon
+
+Lokal varsayılanlar `backend/src/main/resources/application.properties` içinde tutulur. Değerler environment variable ile override edilebilir:
+
+| Değişken | Açıklama | Varsayılan |
+| --- | --- | --- |
+| `DB_URL` | PostgreSQL JDBC URL | `jdbc:postgresql://localhost:5432/aybashim` |
+| `DB_USER` | Veritabanı kullanıcısı | `postgres` |
+| `DB_PASSWORD` | Veritabanı şifresi | `secret` |
+| `JPA_DDL_AUTO` | Hibernate schema modu | `update` |
+| `JPA_SHOW_SQL` | SQL loglarını gösterir | `false` |
+| `APP_JWT_SECRET` | Token imzalama secret'ı | `change-this-secret-before-production` |
+| `APP_JWT_EXPIRATION_HOURS` | Token geçerlilik süresi | `24` |
+
+Kendi hesap transferlerini ayırt etmek için kullanıcının kayıt sırasında verdiği tam ad kullanılır. Açıklamasında bu ad geçen transfer işlemleri `SELF_TRANSFER` olarak kategorilendirilir; normal liste ve özetlerden hariç tutulur, ancak `/api/transactions/self-transfers` üzerinden ayrıca görülebilir.
+
+## Kurulum
+
+Gereksinimler:
 
 - Java 21+
 - Maven 3.8+
 - PostgreSQL
 
-### Adımlar / Steps
+Çalıştırma:
 
 ```bash
-# 1. Repoyu klonla
-git clone https://github.com/mifarosa/aybashim.git
-cd aybashim
-
-# 2. Veritabanını oluştur
 createdb aybashim
-
-# 3. application.properties dosyasını düzenle
-# DB_HOST, DB_PORT, DB_USER, DB_PASSWORD
-
-# 4. Backend'i başlat
 cd backend
 mvn spring-boot:run
 ```
 
----
+Frontend:
 
-## ⚙️ Konfigürasyon / Configuration
-
-`application.properties` içinde kendi hesaplarınız arasındaki transferlerin ayırt edilmesi için keyword tanımlanabilir:
-
-```properties
-app.self-transfer.keywords=Ad Soyad
+```bash
+cd frontend
+npm install
+npm run dev
 ```
 
-Birden fazla keyword kullanılacaksa virgül ile ayrılabilir:
+Vite arayüzü `http://localhost:5173` üzerinde çalışır ve `/api` isteklerini `http://localhost:8080` backend'ine yönlendirir.
 
-```properties
-app.self-transfer.keywords=Ad Soyad,IBAN,Kullanıcı Adı
+Test:
+
+```bash
+cd backend
+mvn test
 ```
 
----
+## Kategorilendirme
 
-## 🔜 Yakında / Upcoming
+İşlemler açıklama metnine göre normalize edilip keyword kurallarıyla kategorilendirilir. Her işlem için iki kategori tutulur:
 
-- Vue.js arayüzü
-- Aylık harcama grafikleri
-- Gelir/gider takibi
-- Kategori bazlı harcama raporları
-- Dashboard ekranı
-- Bütçe limiti takibi
+- `mainCategory`
+- `subCategory`
 
----
+Örnek ana kategoriler:
 
-## 📄 Lisans / License
+- `INCOME`
+- `HOUSING`
+- `BILLS`
+- `FOOD`
+- `SHOPPING`
+- `TRANSPORTATION`
+- `HEALTH`
+- `EDUCATION`
+- `SUBSCRIPTION`
+- `INVESTMENT`
+- `TRANSFER`
+- `CASH`
+- `BANK_FEES`
+- `OTHER`
 
-MIT
+Kategori kuralları güncellendiğinde mevcut kayıtlar yeniden kategorilendirilebilir:
+
+```http
+POST /api/transactions/recategorize
+```
+
+## Notlar
+
+- HTTPie collection dosyası `backend/src/test/httpie_export/httpie-collection-aybashim.json` altında tutulur.
+- Test ortamı PostgreSQL yerine H2 in-memory veritabanı kullanır.
+- Gerçek ortamda `APP_JWT_SECRET` ve `DB_PASSWORD` environment variable olarak verilmelidir.

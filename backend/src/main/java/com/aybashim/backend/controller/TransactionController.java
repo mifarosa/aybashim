@@ -1,5 +1,6 @@
 package com.aybashim.backend.controller;
 
+import com.aybashim.backend.dto.TransactionImportResponse;
 import com.aybashim.backend.model.MainCategory;
 import com.aybashim.backend.model.SubCategory;
 import com.aybashim.backend.model.Transaction;
@@ -42,7 +43,7 @@ public class TransactionController {
     }
 
     @PostMapping("/upload")
-    public List<Transaction> upload(
+    public TransactionImportResponse upload(
             @RequestParam("file") MultipartFile file,
             @RequestParam("bankName") String bankName) throws IOException {
 
@@ -51,7 +52,7 @@ public class TransactionController {
     }
 
     @PostMapping("/upload/excel")
-    public List<Transaction> uploadExcel(
+    public TransactionImportResponse uploadExcel(
             @RequestParam("file") MultipartFile file,
             @RequestParam("bankName") String bankName) throws IOException {
 
@@ -98,6 +99,11 @@ public class TransactionController {
     @GetMapping("/sub-category/{subCategory}")
     public List<Transaction> getBySubCategory(@PathVariable SubCategory subCategory) {
         return service.getBySubCategory(subCategory);
+    }
+
+    @GetMapping("/self-transfers")
+    public List<Transaction> getSelfTransfers() {
+        return service.getSelfTransfers();
     }
 
     @GetMapping("/date")

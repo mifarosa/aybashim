@@ -39,7 +39,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             "FROM Transaction t " +
             "WHERE t.user = :user " +
             "AND (t.subCategory IS NULL OR t.subCategory <> :ignoredSubCategory) " +
-            "AND NOT (t.type = 'DEBIT' AND LOWER(t.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+            "AND (:keyword = '' OR NOT (t.type = 'DEBIT' AND LOWER(t.description) LIKE LOWER(CONCAT('%', :keyword, '%')))) " +
             "GROUP BY FUNCTION('TO_CHAR', t.date, 'YYYY-MM'), t.type " +
             "ORDER BY month")
     List<Object[]> getMonthlySummary(
@@ -53,7 +53,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             "WHERE t.user = :user " +
             "AND t.mainCategory IS NOT NULL " +
             "AND (t.subCategory IS NULL OR t.subCategory <> :ignoredSubCategory) " +
-            "AND NOT (t.type = 'DEBIT' AND LOWER(t.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+            "AND (:keyword = '' OR NOT (t.type = 'DEBIT' AND LOWER(t.description) LIKE LOWER(CONCAT('%', :keyword, '%')))) " +
             "GROUP BY FUNCTION('TO_CHAR', t.date, 'YYYY-MM'), t.mainCategory " +
             "ORDER BY month")
     List<Object[]> getMonthlyMainCategorySummary(
@@ -67,7 +67,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             "WHERE t.user = :user " +
             "AND t.subCategory IS NOT NULL " +
             "AND t.subCategory <> :ignoredSubCategory " +
-            "AND NOT (t.type = 'DEBIT' AND LOWER(t.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+            "AND (:keyword = '' OR NOT (t.type = 'DEBIT' AND LOWER(t.description) LIKE LOWER(CONCAT('%', :keyword, '%')))) " +
             "GROUP BY FUNCTION('TO_CHAR', t.date, 'YYYY-MM'), t.subCategory " +
             "ORDER BY month")
     List<Object[]> getMonthlySubCategorySummary(

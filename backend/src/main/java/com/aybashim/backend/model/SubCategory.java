@@ -33,6 +33,7 @@ public enum SubCategory {
 
     ONLINE_COURSE("Online Kurs", MainCategory.EDUCATION),
     BOOK("Kitap", MainCategory.EDUCATION),
+    EXAM_FEE("Sınav Ücreti", MainCategory.EDUCATION),
 
     DIGITAL_SUBSCRIPTION("Dijital Abonelik", MainCategory.SUBSCRIPTION),
 

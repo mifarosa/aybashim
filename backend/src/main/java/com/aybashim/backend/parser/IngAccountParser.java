@@ -40,7 +40,6 @@ public class IngAccountParser implements BankParser {
         if (!current.isEmpty()) blocks.add(current.toString());
 
         for (String block : blocks) {
-            System.out.println("BLOCK: " + block);
             Matcher matcher = LINE_PATTERN.matcher(block.trim());
             if (matcher.find()) {
                 Transaction tx = getTransaction(matcher, file);

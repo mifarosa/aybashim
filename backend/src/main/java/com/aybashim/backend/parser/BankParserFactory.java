@@ -6,6 +6,7 @@ public class BankParserFactory {
         return switch (bankName.toUpperCase()) {
             case "ING_CREDIT" -> new IngCreditParser();
             case "ING_ACCOUNT" -> new IngAccountParser();
+            case "HADI" -> new HadiParser();
             default -> throw new IllegalArgumentException(
                 "Bilinmeyen banka: " + bankName
             );

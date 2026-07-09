@@ -2,7 +2,6 @@ package com.aybashim.backend.service;
 
 import com.aybashim.backend.model.SubCategory;
 import com.aybashim.backend.model.Transaction;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -13,14 +12,11 @@ import java.util.Locale;
 @Service
 public class CategoryClassifier {
 
-    @Value("${app.self-transfer.keywords:Mehmet Faruk G\u00fcl}")
-    private String selfTransferKeywords;
-
     private record Rule(SubCategory subCategory, List<String> keywords) {
     }
 
     private static final List<Rule> RULES = List.of(
-            new Rule(SubCategory.ATM_WITHDRAWAL, List.of("atm para cekme", "atm cekim", "nakit cekim")),
+            new Rule(SubCategory.ATM_WITHDRAWAL, List.of("atm para cekme", "atm cekim", "nakit cekim", "p.cekme", "p cekme", "qr ile p")),
             new Rule(SubCategory.ATM_DEPOSIT, List.of("atm para yatirma", "para yatirma")),
             new Rule(SubCategory.BANK_FEE, List.of("komisyon", "ucret", "kesinti", "masraf")),
             new Rule(SubCategory.PUBLIC_TRANSPORT, List.of("istanbulkart", "belbim", "ulasim", "metro", "otobus")),
@@ -43,36 +39,50 @@ public class CategoryClassifier {
             new Rule(SubCategory.ELECTRONICS, List.of("teknosa", "mediamarkt", "vatan", "elektronik")),
             new Rule(SubCategory.FUEL, List.of("benzin", "akaryakit", "petrol", "shell", "shel ", "opet", "bp")),
             new Rule(SubCategory.FLIGHT, List.of("thy", "pegasus", "ucak", "flight")),
-            new Rule(SubCategory.TRAVEL, List.of("otel", "booking", "seyahat")),
+            new Rule(SubCategory.TRAVEL, List.of("otel", "booking", "seyahat", "obilet")),
             new Rule(SubCategory.PHARMACY, List.of("eczane", " ecz ")),
             new Rule(SubCategory.HOSPITAL, List.of("hastane", "medical", "saglik", "tip merk", "veteriner")),
             new Rule(SubCategory.ONLINE_COURSE, List.of("udemy", "coursera", "kurs")),
             new Rule(SubCategory.BOOK, List.of("kitap", "kirtasiye", "kitapyurdu", "dr.com.tr")),
+            new Rule(SubCategory.EXAM_FEE, List.of("olcme secme", "osym", "sinav")),
             new Rule(SubCategory.DIGITAL_SUBSCRIPTION, List.of("netflix", "spotify", "youtube", "youtu", "apple.com", "ssportplus", "abonelik")),
             new Rule(SubCategory.STOCK_FUND, List.of("hisse", "fon", "borsa", "emeklilik"))
     );
 
     public void categorize(Transaction transaction) {
+        categorize(transaction, null);
+    }
+
+    public void categorize(Transaction transaction, String selfTransferKeyword) {
         if (transaction.getSubCategory() == null) {
-            transaction.setSubCategory(classify(transaction));
+            transaction.setSubCategory(classify(transaction, selfTransferKeyword));
         }
 
         transaction.setMainCategory(transaction.getSubCategory().getMainCategory());
     }
 
     public void recategorize(Transaction transaction) {
-        transaction.setSubCategory(classify(transaction));
+        recategorize(transaction, null);
+    }
+
+    public void recategorize(Transaction transaction, String selfTransferKeyword) {
+        transaction.setSubCategory(classify(transaction, selfTransferKeyword));
         transaction.setMainCategory(transaction.getSubCategory().getMainCategory());
     }
 
-    private SubCategory classify(Transaction transaction) {
+    private SubCategory classify(Transaction transaction, String selfTransferKeyword) {
         String description = normalize(transaction.getDescription());
 
         if (description.contains("maas") || description.contains("salary")) {
             return SubCategory.SALARY;
         }
 
-        if (description.contains("yatirilan tesekkurler")) {
+        if (description.contains("yatirilan tesekkurler")
+                || description.contains("odeme icin tesekkurler")
+                || description.contains("k.kart")
+                || description.contains("k kart")
+                || description.contains("kredi karti odeme")
+                || description.contains("krdkrt odeme")) {
             return SubCategory.DEBT_PAYMENT;
         }
 
@@ -88,7 +98,7 @@ public class CategoryClassifier {
             return SubCategory.GIFT;
         }
 
-        if (isTransferDescription(description) && containsSelfTransferKeyword(description)) {
+        if (isTransferDescription(description) && containsSelfTransferKeyword(description, selfTransferKeyword)) {
             return SubCategory.SELF_TRANSFER;
         }
 
@@ -127,16 +137,13 @@ public class CategoryClassifier {
                 || description.contains("para gonder");
     }
 
-    private boolean containsSelfTransferKeyword(String description) {
-        if (selfTransferKeywords == null || selfTransferKeywords.isBlank()) {
+    private boolean containsSelfTransferKeyword(String description, String selfTransferKeyword) {
+        if (selfTransferKeyword == null || selfTransferKeyword.isBlank()) {
             return false;
         }
 
-        return List.of(selfTransferKeywords.split(",")).stream()
-                .map(this::normalize)
-                .map(String::trim)
-                .filter(keyword -> !keyword.isBlank())
-                .anyMatch(description::contains);
+        String keyword = normalize(selfTransferKeyword).trim();
+        return !keyword.isBlank() && description.contains(keyword);
     }
 
     private String normalize(String value) {
