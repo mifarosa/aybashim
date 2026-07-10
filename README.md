@@ -47,16 +47,9 @@ Frontend:
 
 ## Arayuz
 
+![aybashim dashboard](docs/screenshots/dashboard.PNG)
+
 Dashboard ilk ekranda aylik durum ozeti, nakit akisi, kategori dagilimi, ekstre yukleme alani ve islem tablolarini birlikte sunar.
-
-README'e ekran goruntusu eklemek icin:
-
-1. Ekran goruntusunu `docs/screenshots/dashboard.png` olarak kaydedin.
-2. Bu bolumde asagidaki satiri yorumdan cikarip kullanin:
-
-```md
-![aybashim dashboard](docs/screenshots/dashboard.png)
-```
 
 Mevcut hero gorseli uygulama icinde `frontend/src/assets/finance-hero.png` dosyasindan kullanilir.
 
