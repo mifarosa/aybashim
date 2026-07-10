@@ -15,4 +15,11 @@ class PasswordServiceTests {
         assertThat(passwordService.matches("correct-password", hash)).isTrue();
         assertThat(passwordService.matches("wrong-password", hash)).isFalse();
     }
+
+    @Test
+    void rejectsNullAndMalformedHashesWithoutThrowing() {
+        assertThat(passwordService.matches(null, null)).isFalse();
+        assertThat(passwordService.matches("password", "not-a-valid-hash")).isFalse();
+        assertThat(passwordService.matches("password", "abc:def:ghi")).isFalse();
+    }
 }

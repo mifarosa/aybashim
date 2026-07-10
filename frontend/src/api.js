@@ -3,7 +3,7 @@ const USER_KEY = 'aybashim.user';
 
 export function loadSession() {
   const token = localStorage.getItem(TOKEN_KEY);
-  const user = JSON.parse(localStorage.getItem(USER_KEY) || 'null');
+  const user = parseStoredUser();
   return { token, user };
 }
 
@@ -37,17 +37,40 @@ export async function apiRequest(path, options = {}, token) {
 
   const contentType = response.headers.get('content-type') || '';
   const body = contentType.includes('application/json')
-    ? await response.json()
+    ? await readJson(response)
     : await response.text();
 
   if (!response.ok) {
     const message = typeof body === 'object' && body?.message
       ? body.message
       : response.status === 500 && path.startsWith('/api')
-        ? 'Backend cevap vermiyor. Spring Boot uygulaması 8080 portunda çalışıyor mu?'
+        ? 'Backend cevap vermiyor. Spring Boot uygulamasi 8080 portunda calisiyor mu?'
         : `HTTP ${response.status}`;
     throw new Error(message);
   }
 
   return body;
+}
+
+function parseStoredUser() {
+  try {
+    return JSON.parse(localStorage.getItem(USER_KEY) || 'null');
+  } catch {
+    localStorage.removeItem(USER_KEY);
+    localStorage.removeItem(TOKEN_KEY);
+    return null;
+  }
+}
+
+async function readJson(response) {
+  const text = await response.text();
+  if (!text) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
+  }
 }

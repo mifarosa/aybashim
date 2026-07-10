@@ -28,7 +28,20 @@ public class AuthService {
     }
 
     public AuthResponse register(RegisterRequest request) {
+        if (request == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Register request is required");
+        }
+        if (request.name() == null || request.name().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Name is required");
+        }
+        if (request.password() == null || request.password().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password is required");
+        }
+
         String email = normalizeEmail(request.email());
+        if (email.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is required");
+        }
         if (userRepository.existsByEmail(email)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already registered");
         }
@@ -43,6 +56,9 @@ public class AuthService {
     }
 
     public AuthResponse login(AuthRequest request) {
+        if (request == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Login request is required");
+        }
         AppUser user = userRepository.findByEmail(normalizeEmail(request.email()))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials"));
 
@@ -54,6 +70,9 @@ public class AuthService {
     }
 
     public AuthResponse updateProfile(ProfileUpdateRequest request) {
+        if (request == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Profile update request is required");
+        }
         AppUser user = currentUser.get();
         String name = request.name() == null ? "" : request.name().trim();
         String email = normalizeEmail(request.email());

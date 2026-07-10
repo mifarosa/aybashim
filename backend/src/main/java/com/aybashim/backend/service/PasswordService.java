@@ -26,17 +26,25 @@ public class PasswordService {
     }
 
     public boolean matches(String password, String storedHash) {
-        String[] parts = storedHash.split(":");
-        if (parts.length != 3) {
+        if (password == null || storedHash == null) {
             return false;
         }
 
-        int iterations = Integer.parseInt(parts[0]);
-        byte[] salt = Base64.getDecoder().decode(parts[1]);
-        byte[] expected = Base64.getDecoder().decode(parts[2]);
-        byte[] actual = pbkdf2(password, salt, iterations);
+        try {
+            String[] parts = storedHash.split(":");
+            if (parts.length != 3) {
+                return false;
+            }
 
-        return slowEquals(expected, actual);
+            int iterations = Integer.parseInt(parts[0]);
+            byte[] salt = Base64.getDecoder().decode(parts[1]);
+            byte[] expected = Base64.getDecoder().decode(parts[2]);
+            byte[] actual = pbkdf2(password, salt, iterations);
+
+            return slowEquals(expected, actual);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 
     private byte[] pbkdf2(String password, byte[] salt, int iterations) {

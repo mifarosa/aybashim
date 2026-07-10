@@ -2,7 +2,11 @@ package com.aybashim.backend.parser;
 
 import com.aybashim.backend.model.Transaction;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -17,53 +21,65 @@ import java.util.List;
 
 public class GarantiParser {
 
+    private static final int FIRST_TRANSACTION_ROW = 15;
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
     public List<Transaction> parse(InputStream is, MultipartFile file) throws IOException {
         List<Transaction> transactions = new ArrayList<>();
 
-        Workbook workbook = new HSSFWorkbook(is);
-        Sheet sheet = workbook.getSheetAt(0);
+        try (Workbook workbook = new HSSFWorkbook(is)) {
+            Sheet sheet = workbook.getSheetAt(0);
 
-        for (int i = 15; i <= sheet.getLastRowNum(); i++) {
-            Row row = sheet.getRow(i);
-            if (row == null) continue;
+            for (int i = FIRST_TRANSACTION_ROW; i <= sheet.getLastRowNum(); i++) {
+                Row row = sheet.getRow(i);
+                if (row == null) {
+                    continue;
+                }
 
-            Cell dateCell   = row.getCell(0);
-            Cell descCell   = row.getCell(1);
-            Cell amountCell = row.getCell(3);
-
-            if (amountCell == null || amountCell.getCellType() != CellType.NUMERIC) continue;
-
-            // Tarih
-            LocalDate localDate;
-            if (dateCell.getCellType() == CellType.NUMERIC) {
-                Date date = dateCell.getDateCellValue();
-                localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            } else if (dateCell.getCellType() == CellType.STRING) {
-                localDate = LocalDate.parse(dateCell.getStringCellValue().trim(),
-                        DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-            } else {
-                continue;
+                Transaction transaction = parseRow(row, file);
+                if (transaction != null) {
+                    transactions.add(transaction);
+                }
             }
-
-            // Açıklama
-            String description = descCell != null ? descCell.getStringCellValue() : "";
-
-            // Tutar
-            double rawAmount = amountCell.getNumericCellValue();
-            BigDecimal amount = BigDecimal.valueOf(Math.abs(rawAmount));
-            String type = rawAmount >= 0 ? "CREDIT" : "DEBIT";
-
-            Transaction tx = new Transaction();
-            tx.setDate(localDate);
-            tx.setDescription(description);
-            tx.setAmount(amount);
-            tx.setType(type);
-            tx.setSourceFile(file.getOriginalFilename());
-            tx.setBankName("Garanti");
-            transactions.add(tx);
         }
 
-        workbook.close();
         return transactions;
+    }
+
+    private Transaction parseRow(Row row, MultipartFile file) {
+        Cell dateCell = row.getCell(0);
+        Cell descriptionCell = row.getCell(1);
+        Cell amountCell = row.getCell(3);
+
+        if (dateCell == null || amountCell == null || amountCell.getCellType() != CellType.NUMERIC) {
+            return null;
+        }
+
+        LocalDate date = parseDate(dateCell);
+        if (date == null) {
+            return null;
+        }
+
+        double rawAmount = amountCell.getNumericCellValue();
+
+        Transaction transaction = new Transaction();
+        transaction.setDate(date);
+        transaction.setDescription(descriptionCell != null ? descriptionCell.getStringCellValue() : "");
+        transaction.setAmount(BigDecimal.valueOf(Math.abs(rawAmount)));
+        transaction.setType(rawAmount >= 0 ? "CREDIT" : "DEBIT");
+        transaction.setSourceFile(file.getOriginalFilename());
+        transaction.setBankName("Garanti");
+        return transaction;
+    }
+
+    private LocalDate parseDate(Cell dateCell) {
+        if (dateCell.getCellType() == CellType.NUMERIC) {
+            Date date = dateCell.getDateCellValue();
+            return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        }
+        if (dateCell.getCellType() == CellType.STRING) {
+            return LocalDate.parse(dateCell.getStringCellValue().trim(), DATE_FORMATTER);
+        }
+        return null;
     }
 }

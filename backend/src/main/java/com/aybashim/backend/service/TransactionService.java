@@ -5,6 +5,7 @@ import com.aybashim.backend.model.AppUser;
 import com.aybashim.backend.model.MainCategory;
 import com.aybashim.backend.model.SubCategory;
 import com.aybashim.backend.model.Transaction;
+import com.aybashim.backend.model.TransactionType;
 import com.aybashim.backend.repository.TransactionRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -43,6 +45,7 @@ public class TransactionService {
 
     public Transaction save(Transaction transaction) {
         AppUser user = currentUser.get();
+        normalizeAndValidate(transaction);
         transaction.setUser(user);
         categoryClassifier.categorize(transaction, user.getName());
         return repository.save(transaction);
@@ -55,6 +58,7 @@ public class TransactionService {
 
         for (Transaction tx : transactions) {
             try {
+                normalizeAndValidate(tx);
                 tx.setUser(user);
                 categoryClassifier.categorize(tx, user.getName());
                 saved.add(repository.save(tx));
@@ -78,7 +82,7 @@ public class TransactionService {
     }
 
     public List<Transaction> getByType(String type) {
-        return filterExcluded(repository.findByUserAndType(currentUser.get(), type));
+        return filterExcluded(repository.findByUserAndType(currentUser.get(), normalizeType(type)));
     }
 
     public List<Transaction> getByMainCategory(MainCategory mainCategory) {
@@ -129,7 +133,7 @@ public class TransactionService {
     }
 
     public List<Transaction> getByBankAndType(String bankName, String type) {
-        return filterExcluded(repository.findByUserAndBankNameAndType(currentUser.get(), bankName, type));
+        return filterExcluded(repository.findByUserAndBankNameAndType(currentUser.get(), bankName, normalizeType(type)));
     }
 
     public List<Transaction> getByDescription(String keyword) {
@@ -164,5 +168,45 @@ public class TransactionService {
         }
 
         return summary;
+    }
+
+    private void normalizeAndValidate(Transaction transaction) {
+        if (transaction == null) {
+            throw new IllegalArgumentException("Transaction is required");
+        }
+        if (transaction.getDate() == null) {
+            throw new IllegalArgumentException("Transaction date is required");
+        }
+        if (transaction.getDescription() == null || transaction.getDescription().isBlank()) {
+            throw new IllegalArgumentException("Transaction description is required");
+        }
+        if (transaction.getAmount() == null) {
+            throw new IllegalArgumentException("Transaction amount is required");
+        }
+        if (transaction.getAmount().signum() < 0) {
+            throw new IllegalArgumentException("Transaction amount must be positive");
+        }
+
+        transaction.setDescription(transaction.getDescription().trim());
+        transaction.setType(normalizeType(transaction.getType()));
+        if (transaction.getBankName() != null) {
+            transaction.setBankName(transaction.getBankName().trim());
+        }
+        if (transaction.getSourceFile() != null) {
+            transaction.setSourceFile(transaction.getSourceFile().trim());
+        }
+    }
+
+    private String normalizeType(String type) {
+        if (type == null || type.isBlank()) {
+            throw new IllegalArgumentException("Transaction type is required");
+        }
+
+        String normalized = type.trim().toUpperCase(Locale.ROOT);
+        try {
+            return TransactionType.valueOf(normalized).name();
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Unsupported transaction type: " + type);
+        }
     }
 }
