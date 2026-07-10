@@ -144,15 +144,23 @@
 
       <section class="control-band">
         <form class="upload-form" @submit.prevent="uploadStatement">
-          <label>
-            Banka
-            <select v-model="upload.bankName">
-              <option value="ING_ACCOUNT">ING Hesap PDF</option>
-              <option value="ING_CREDIT">ING Kredi PDF</option>
-              <option value="HADI">A101 Hadi Kart PDF</option>
-              <option value="GARANTI">Garanti XLS</option>
-            </select>
-          </label>
+          <div class="bank-picker" role="radiogroup" aria-label="Banka">
+            <button
+              v-for="option in bankOptions"
+              :key="option.value"
+              type="button"
+              :class="['bank-card', { active: upload.bankName === option.value }]"
+              role="radio"
+              :aria-checked="upload.bankName === option.value"
+              @click="upload.bankName = option.value"
+            >
+              <span class="bank-mark">{{ option.mark }}</span>
+              <span>
+                <strong>{{ option.label }}</strong>
+                <small>{{ option.detail }}</small>
+              </span>
+            </button>
+          </div>
           <label class="file-input">
             Ekstre
             <span class="file-picker">
@@ -170,6 +178,32 @@
           <button class="secondary" type="button" :disabled="busy" @click="loadDashboard">Yenile</button>
           <button class="secondary" type="button" :disabled="busy" @click="recategorize">Yeniden kategorilendir</button>
         </div>
+      </section>
+
+      <section class="cashflow-panel">
+        <div class="cashflow-header">
+          <div>
+            <p class="eyebrow">Nakit akışı</p>
+            <h2>Son aylar</h2>
+          </div>
+          <div class="cashflow-key">
+            <span><i class="credit"></i> Gelir</span>
+            <span><i class="debit"></i> Gider</span>
+            <span><i class="net"></i> Net</span>
+          </div>
+        </div>
+        <div v-if="cashflowRows.length > 0" class="cashflow-chart">
+          <article v-for="row in cashflowRows" :key="row.month" class="cashflow-row">
+            <span class="cashflow-month">{{ row.month }}</span>
+            <div class="cashflow-bars">
+              <span class="cashbar credit" :style="{ width: `${row.creditPercent}%` }"></span>
+              <span class="cashbar debit" :style="{ width: `${row.debitPercent}%` }"></span>
+              <span class="cashbar net" :style="{ width: `${row.netPercent}%` }"></span>
+            </div>
+            <strong><SensitiveAmount :value="row.net" :reveal="showAmounts" /></strong>
+          </article>
+        </div>
+        <EmptyState v-else title="Nakit akışı yok" text="Ekstre yüklediğinde aylık gelir, gider ve net denge burada görünecek." />
       </section>
 
       <p v-if="message" :class="['message', messageType]">{{ message }}</p>
@@ -232,13 +266,16 @@
           <div class="income-sources">
             <h2>Gider kaynakları</h2>
             <article v-for="source in expenseSources" :key="source.key" class="source-row">
-              <div>
-                <strong>{{ source.label }}</strong>
-                <span>{{ source.count }} işlem · {{ source.bankName }}</span>
+              <div class="source-main">
+                <CategoryBadge :category="source.label" />
+                <span>
+                  <strong>{{ source.label }}</strong>
+                  <small>{{ source.count }} işlem · {{ source.bankName }}</small>
+                </span>
               </div>
               <b><SensitiveAmount :value="source.total" :reveal="showAmounts" /></b>
             </article>
-            <p v-if="expenseSources.length === 0" class="empty-state">Gider kaydı bulunamadı.</p>
+            <EmptyState v-if="expenseSources.length === 0" title="Gider kaydı yok" text="Filtreleri değiştirdiğinde veya yeni ekstre yüklediğinde burada kaynaklar listelenir." />
           </div>
 
           <TransactionTable :transactions="filteredExpenseTransactions" empty-text="Gider kaydı bulunamadı." />
@@ -265,13 +302,16 @@
           <div class="income-sources">
             <h2>Gelir kaynakları</h2>
             <article v-for="source in incomeSources" :key="source.key" class="source-row">
-              <div>
-                <strong>{{ source.label }}</strong>
-                <span>{{ source.count }} işlem · {{ source.bankName }}</span>
+              <div class="source-main">
+                <CategoryBadge :category="source.label" />
+                <span>
+                  <strong>{{ source.label }}</strong>
+                  <small>{{ source.count }} işlem · {{ source.bankName }}</small>
+                </span>
               </div>
               <b><SensitiveAmount :value="source.total" :reveal="showAmounts" /></b>
             </article>
-            <p v-if="incomeSources.length === 0" class="empty-state">Gelir kaydı bulunamadı.</p>
+            <EmptyState v-if="incomeSources.length === 0" title="Gelir kaydı yok" text="Maaş, iade veya gelen transfer kayıtları burada kaynaklarına göre görünür." />
           </div>
 
           <TransactionTable :transactions="filteredIncomeTransactions" empty-text="Gelir kaydı bulunamadı." />
@@ -300,14 +340,14 @@
 
             <div class="pie-legend">
               <article v-for="item in selectedMonthSubCategories" :key="item.name" class="legend-row">
-                <span class="legend-color" :style="{ background: item.color }"></span>
+                <CategoryBadge :category="item.name" :color="item.color" />
                 <div>
                   <strong>{{ item.name }}</strong>
                   <small>{{ item.percent.toFixed(1) }}%</small>
                 </div>
                 <b><SensitiveAmount :value="item.total" :reveal="showAmounts" /></b>
               </article>
-              <p v-if="selectedMonthSubCategories.length === 0" class="empty-state">Bu ay gider kaydı yok.</p>
+              <EmptyState v-if="selectedMonthSubCategories.length === 0" title="Bu ay gider yok" text="Seçili ay için gider hareketi bulunamadı." />
             </div>
           </div>
         </div>
@@ -332,10 +372,10 @@
         <div class="category-list">
           <h2>{{ selectedSummaryMonth }} alt kategorileri</h2>
           <article v-for="item in selectedMonthSubCategories" :key="item.name" class="category-row">
-            <span>{{ item.name }}</span>
+            <span class="category-name"><CategoryBadge :category="item.name" :color="item.color" />{{ item.name }}</span>
             <strong><SensitiveAmount :value="item.total" :reveal="showAmounts" /></strong>
           </article>
-          <p v-if="selectedMonthSubCategories.length === 0" class="empty-state">Bu ay gider kaydı yok.</p>
+          <EmptyState v-if="selectedMonthSubCategories.length === 0" title="Alt kategori yok" text="Seçili ay için kategori toplamı oluşmadı." />
         </div>
       </section>
 
@@ -383,6 +423,13 @@ const upload = reactive({
   bankName: 'ING_ACCOUNT',
   file: null
 });
+
+const bankOptions = [
+  { value: 'ING_ACCOUNT', label: 'ING Hesap', detail: 'PDF', mark: 'IA' },
+  { value: 'ING_CREDIT', label: 'ING Kredi', detail: 'PDF', mark: 'IK' },
+  { value: 'HADI', label: 'A101 Hadi', detail: 'PDF', mark: 'HD' },
+  { value: 'GARANTI', label: 'Garanti', detail: 'XLS', mark: 'GB' }
+];
 
 const filters = reactive({
   keyword: '',
@@ -470,13 +517,50 @@ const TransactionTable = defineComponent({
             h('td', { class: 'description' }, tx.description),
             h('td', tx.bankName || '-'),
             h('td', h('span', { class: ['pill', tx.type?.toLowerCase()] }, tx.type)),
-            h('td', [tx.mainCategory || '-', h('small', tx.subCategory || '')]),
+            h('td', { class: 'category-cell' }, [
+              h(CategoryBadge, { category: tx.subCategory || tx.mainCategory || 'UNKNOWN' }),
+              h('span', [
+                tx.mainCategory || '-',
+                h('small', tx.subCategory || '')
+              ])
+            ]),
             h('td', { class: 'amount' }, h(SensitiveAmount, {
               value: Number(tx.amount || 0),
               reveal: showAmounts.value
             }))
           ])))
         ])
+    ]);
+  }
+});
+
+const CategoryBadge = defineComponent({
+  props: {
+    category: { type: String, default: 'UNKNOWN' },
+    color: { type: String, default: '' }
+  },
+  setup(props) {
+    return () => {
+      const meta = categoryMeta(props.category);
+      return h('span', {
+        class: 'category-badge',
+        style: { '--badge-bg': props.color || meta.color },
+        title: meta.label
+      }, meta.short);
+    };
+  }
+});
+
+const EmptyState = defineComponent({
+  props: {
+    title: { type: String, required: true },
+    text: { type: String, default: '' }
+  },
+  setup(props) {
+    return () => h('div', { class: 'empty-state' }, [
+      h('span', { class: 'empty-visual', 'aria-hidden': 'true' }, 'AY'),
+      h('strong', props.title),
+      props.text ? h('p', props.text) : null
     ]);
   }
 });
@@ -590,6 +674,16 @@ const monthlyRows = computed(() => monthKeys.value.map((month) => {
     credit,
     debitPercent: Math.max((debit / max) * 100, debit > 0 ? 4 : 0),
     creditPercent: Math.max((credit / max) * 100, credit > 0 ? 4 : 0)
+  };
+}));
+
+const cashflowRows = computed(() => monthlyRows.value.slice(0, 6).map((row) => {
+  const net = row.credit - row.debit;
+  const max = Math.max(row.credit, row.debit, Math.abs(net), 1);
+  return {
+    ...row,
+    net,
+    netPercent: Math.max((Math.abs(net) / max) * 100, net !== 0 ? 4 : 0)
   };
 }));
 
@@ -869,6 +963,75 @@ function groupSources(items, labelFactory) {
 
   return [...groups.values()].sort((a, b) => b.total - a.total);
 }
+
+function categoryMeta(category = 'UNKNOWN') {
+  const key = String(category).toUpperCase();
+  const meta = categoryMetaMap[key] || categoryMetaMap.UNKNOWN;
+  return {
+    ...meta,
+    label: category || meta.label
+  };
+}
+
+const categoryMetaMap = {
+  SALARY: { short: 'GL', color: '#83d39a', label: 'Gelir' },
+  EXTRA_INCOME: { short: 'EK', color: '#83d39a', label: 'Ek gelir' },
+  RENT: { short: 'EV', color: '#b7a7f1', label: 'Konut' },
+  APARTMENT_FEE: { short: 'EV', color: '#b7a7f1', label: 'Aidat' },
+  HOME_GOODS: { short: 'ES', color: '#c5a3ef', label: 'Ev esyasi' },
+  INTERNET: { short: 'FT', color: '#8fb4f5', label: 'Fatura' },
+  MOBILE_PHONE: { short: 'FT', color: '#8fb4f5', label: 'Fatura' },
+  ELECTRICITY: { short: 'FT', color: '#8fb4f5', label: 'Fatura' },
+  WATER: { short: 'FT', color: '#8fb4f5', label: 'Fatura' },
+  NATURAL_GAS: { short: 'FT', color: '#8fb4f5', label: 'Fatura' },
+  MARKET: { short: 'MR', color: '#72c6b4', label: 'Market' },
+  RESTAURANT: { short: 'YM', color: '#f2a477', label: 'Yemek' },
+  COFFEE: { short: 'KF', color: '#f3c86f', label: 'Kafe' },
+  E_COMMERCE: { short: 'AL', color: '#c5a3ef', label: 'Alisveris' },
+  GENERAL_SHOPPING: { short: 'AL', color: '#c5a3ef', label: 'Alisveris' },
+  CLOTHING: { short: 'GY', color: '#c5a3ef', label: 'Giyim' },
+  ELECTRONICS: { short: 'EL', color: '#c5a3ef', label: 'Elektronik' },
+  PUBLIC_TRANSPORT: { short: 'UL', color: '#8fb4f5', label: 'Ulasim' },
+  TAXI: { short: 'TX', color: '#8fb4f5', label: 'Taksi' },
+  FUEL: { short: 'YT', color: '#8fb4f5', label: 'Yakit' },
+  FLIGHT: { short: 'SY', color: '#8fb4f5', label: 'Seyahat' },
+  TRAVEL: { short: 'SY', color: '#8fb4f5', label: 'Seyahat' },
+  PHARMACY: { short: 'SG', color: '#ee8fa2', label: 'Saglik' },
+  HOSPITAL: { short: 'SG', color: '#ee8fa2', label: 'Saglik' },
+  SPORTS_FITNESS: { short: 'SP', color: '#a6c873', label: 'Spor' },
+  ONLINE_COURSE: { short: 'EG', color: '#f3c86f', label: 'Egitim' },
+  BOOK: { short: 'KT', color: '#f3c86f', label: 'Kitap' },
+  EXAM_FEE: { short: 'EG', color: '#f3c86f', label: 'Sinav' },
+  DIGITAL_SUBSCRIPTION: { short: 'AB', color: '#b7a7f1', label: 'Abonelik' },
+  GOLD: { short: 'YA', color: '#f3c86f', label: 'Altin' },
+  SILVER: { short: 'GM', color: '#9fb0bf', label: 'Gumus' },
+  FOREIGN_CURRENCY: { short: 'DV', color: '#9fb0bf', label: 'Doviz' },
+  STOCK_FUND: { short: 'FN', color: '#9fb0bf', label: 'Fon' },
+  MONEY_SENT: { short: 'TR', color: '#9fb0bf', label: 'Transfer' },
+  MONEY_RECEIVED: { short: 'TR', color: '#83d39a', label: 'Gelen transfer' },
+  DEBT_PAYMENT: { short: 'OD', color: '#9fb0bf', label: 'Odeme' },
+  SELF_TRANSFER: { short: 'KT', color: '#9fb0bf', label: 'Kendime transfer' },
+  ATM_WITHDRAWAL: { short: 'NK', color: '#f2a477', label: 'Nakit' },
+  ATM_DEPOSIT: { short: 'NK', color: '#83d39a', label: 'Nakit' },
+  BANK_FEE: { short: 'BK', color: '#ee8fa2', label: 'Banka kesintisi' },
+  PET_CARE: { short: 'PC', color: '#a6c873', label: 'Evcil hayvan' },
+  GIFT: { short: 'HD', color: '#ee8fa2', label: 'Hediye' },
+  UNKNOWN: { short: '??', color: '#9fb0bf', label: 'Bilinmeyen' },
+  INCOME: { short: 'GL', color: '#83d39a', label: 'Gelir' },
+  HOUSING: { short: 'EV', color: '#b7a7f1', label: 'Konut' },
+  BILLS: { short: 'FT', color: '#8fb4f5', label: 'Fatura' },
+  FOOD: { short: 'YM', color: '#f2a477', label: 'Yemek' },
+  SHOPPING: { short: 'AL', color: '#c5a3ef', label: 'Alisveris' },
+  TRANSPORTATION: { short: 'UL', color: '#8fb4f5', label: 'Ulasim' },
+  HEALTH: { short: 'SG', color: '#ee8fa2', label: 'Saglik' },
+  EDUCATION: { short: 'EG', color: '#f3c86f', label: 'Egitim' },
+  SUBSCRIPTION: { short: 'AB', color: '#b7a7f1', label: 'Abonelik' },
+  INVESTMENT: { short: 'YT', color: '#9fb0bf', label: 'Yatirim' },
+  TRANSFER: { short: 'TR', color: '#9fb0bf', label: 'Transfer' },
+  CASH: { short: 'NK', color: '#f2a477', label: 'Nakit' },
+  BANK_FEES: { short: 'BK', color: '#ee8fa2', label: 'Banka kesintisi' },
+  OTHER: { short: 'DG', color: '#9fb0bf', label: 'Diger' }
+};
 
 function sortValue(tx, key) {
   if (key === 'amount') {

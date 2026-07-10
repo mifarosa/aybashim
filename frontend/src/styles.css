@@ -504,7 +504,7 @@ label {
 
 .upload-form {
   display: grid;
-  grid-template-columns: minmax(180px, 220px) minmax(300px, 1fr) auto;
+  grid-template-columns: minmax(420px, 1fr) minmax(300px, 0.7fr) auto;
   align-items: end;
   gap: 10px;
   min-width: 0;
@@ -520,6 +520,67 @@ label {
 
 .actions .secondary {
   align-self: end;
+}
+
+.bank-picker {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  min-width: 0;
+}
+
+.bank-card {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  min-height: 54px;
+  padding: 8px;
+  border-color: var(--line);
+  color: var(--ink);
+  background: #ffffff;
+  text-align: left;
+}
+
+.bank-card:hover,
+.bank-card.active {
+  border-color: #9ccfc3;
+  background: linear-gradient(135deg, #ffffff 0%, #eef8f4 100%);
+}
+
+.bank-card.active {
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+.bank-mark {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  color: #ffffff;
+  background: var(--primary);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.bank-card strong,
+.bank-card small {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bank-card strong {
+  font-size: 13px;
+}
+
+.bank-card small {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 800;
 }
 
 .upload-form label {
@@ -598,6 +659,96 @@ label {
   color: var(--credit);
   border-color: #a7dfc1;
   background: #f0fbf5;
+}
+
+.cashflow-panel {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 14px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #ffffff 0%, #f5fbf8 100%);
+  box-shadow: 0 8px 26px rgba(19, 57, 49, 0.05);
+}
+
+.cashflow-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.cashflow-header h2 {
+  margin: 0;
+  font-size: 20px;
+  letter-spacing: 0;
+}
+
+.cashflow-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.cashflow-key span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cashflow-key i {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+}
+
+.cashflow-chart {
+  display: grid;
+  gap: 10px;
+}
+
+.cashflow-row {
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.cashflow-month {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.cashflow-bars {
+  display: grid;
+  gap: 4px;
+}
+
+.cashbar {
+  display: block;
+  min-width: 4px;
+  height: 7px;
+  border-radius: 999px;
+}
+
+.cashbar.credit,
+.cashflow-key .credit {
+  background: var(--credit);
+}
+
+.cashbar.debit,
+.cashflow-key .debit {
+  background: var(--debit);
+}
+
+.cashbar.net,
+.cashflow-key .net {
+  background: #8fb4f5;
 }
 
 .tabs {
@@ -692,6 +843,36 @@ td {
   white-space: normal;
 }
 
+.category-cell,
+.category-name,
+.source-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.category-cell > span:last-child,
+.source-main > span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.category-badge {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 30px;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  color: #ffffff;
+  background: var(--badge-bg, #9fb0bf);
+  font-size: 10px;
+  font-weight: 900;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.36);
+}
+
 td small {
   display: block;
   margin-top: 3px;
@@ -765,10 +946,38 @@ td small {
 }
 
 .empty-state {
+  display: grid;
+  place-items: center;
+  gap: 8px;
   margin: 0;
-  padding: 36px 16px;
+  padding: 32px 16px;
   color: var(--text-muted);
   text-align: center;
+}
+
+.empty-state strong {
+  color: var(--ink);
+  font-size: 15px;
+}
+
+.empty-state p {
+  max-width: 360px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.empty-visual {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  aspect-ratio: 1;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--primary);
+  background: linear-gradient(135deg, var(--pastel-green), var(--pastel-blue));
+  font-size: 12px;
+  font-weight: 900;
 }
 
 .summary-panel {
@@ -852,7 +1061,7 @@ td small {
 
 .legend-row {
   display: grid;
-  grid-template-columns: 12px minmax(0, 1fr) auto;
+  grid-template-columns: 30px minmax(0, 1fr) auto;
   align-items: center;
   gap: 12px;
   padding: 12px 14px;
@@ -861,12 +1070,6 @@ td small {
 
 .legend-row:last-child {
   border-bottom: 0;
-}
-
-.legend-color {
-  width: 12px;
-  height: 12px;
-  border-radius: 3px;
 }
 
 .legend-row div {
@@ -920,16 +1123,11 @@ td small {
   border-bottom: 1px solid var(--line);
 }
 
-.source-row div {
-  display: grid;
-  gap: 4px;
-}
-
 .source-row strong {
   line-height: 1.35;
 }
 
-.source-row span {
+.source-row small {
   color: var(--text-muted);
   font-size: 12px;
 }
@@ -1021,11 +1219,20 @@ td small {
   .control-band,
   .topbar,
   .account-panel,
+  .cashflow-header,
   .summary-panel,
   .income-content,
   .pie-layout {
     display: grid;
     grid-template-columns: 1fr;
+  }
+
+  .upload-form {
+    grid-template-columns: 1fr;
+  }
+
+  .bank-picker {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .month-list,
@@ -1079,6 +1286,19 @@ td small {
   .filters {
     display: grid;
     grid-template-columns: 1fr;
+  }
+
+  .bank-picker {
+    grid-template-columns: 1fr;
+  }
+
+  .cashflow-row {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+
+  .cashflow-row strong {
+    justify-self: start;
   }
 
   .upload-form label,
