@@ -1,5 +1,7 @@
 # aybashim
 
+![aybashim example](docs/screenshots/img.png)
+
 Kisisel finans takibi icin gelistirilen bir Spring Boot + Vue uygulamasi.
 Banka ekstrelerini ice aktarir, islemleri otomatik kategorilendirir, aylik gelir/gider ozetlerini ve transferleri kullanici bazli olarak gosterir.
 
