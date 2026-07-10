@@ -39,6 +39,26 @@ Frontend:
 - Aylik gelir/gider ve kategori ozetleri
 - Tam ada gore kendi hesaplarin arasindaki transferleri ayirma
 - Vue tabanli dashboard arayuzu
+- Pastel bankacilik hissinde ev ekonomisi odakli hero gorseli
+- Kategori rozetleri ve renkli kategori ayrimlari
+- Aylik nakit akisi paneli: gelir, gider ve net denge barlari
+- Banka/ekstre secimi icin kart tabanli upload alani
+- Bos durumlar icin aciklayici gorsel state'ler
+
+## Arayuz
+
+Dashboard ilk ekranda aylik durum ozeti, nakit akisi, kategori dagilimi, ekstre yukleme alani ve islem tablolarini birlikte sunar.
+
+README'e ekran goruntusu eklemek icin:
+
+1. Ekran goruntusunu `docs/screenshots/dashboard.png` olarak kaydedin.
+2. Bu bolumde asagidaki satiri yorumdan cikarip kullanin:
+
+```md
+![aybashim dashboard](docs/screenshots/dashboard.png)
+```
+
+Mevcut hero gorseli uygulama icinde `frontend/src/assets/finance-hero.png` dosyasindan kullanilir.
 
 ## API
 
