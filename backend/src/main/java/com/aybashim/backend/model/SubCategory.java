@@ -7,6 +7,7 @@ public enum SubCategory {
 
     RENT("Kira", MainCategory.HOUSING),
     APARTMENT_FEE("Aidat", MainCategory.HOUSING),
+    HOME_GOODS("Ev Eşyası", MainCategory.HOUSING),
 
     INTERNET("İnternet", MainCategory.BILLS),
     MOBILE_PHONE("Mobil Hat", MainCategory.BILLS),
@@ -19,6 +20,7 @@ public enum SubCategory {
     COFFEE("Kafe", MainCategory.FOOD),
 
     E_COMMERCE("E-Ticaret", MainCategory.SHOPPING),
+    GENERAL_SHOPPING("Genel Alışveriş", MainCategory.SHOPPING),
     CLOTHING("Giyim", MainCategory.SHOPPING),
     ELECTRONICS("Elektronik", MainCategory.SHOPPING),
 
@@ -30,6 +32,7 @@ public enum SubCategory {
 
     PHARMACY("Eczane", MainCategory.HEALTH),
     HOSPITAL("Hastane", MainCategory.HEALTH),
+    SPORTS_FITNESS("Spor/Fitness", MainCategory.HEALTH),
 
     ONLINE_COURSE("Online Kurs", MainCategory.EDUCATION),
     BOOK("Kitap", MainCategory.EDUCATION),
@@ -52,6 +55,7 @@ public enum SubCategory {
 
     BANK_FEE("Banka Kesintisi", MainCategory.BANK_FEES),
 
+    PET_CARE("Evcil Hayvan", MainCategory.OTHER),
     GIFT("Hediye", MainCategory.OTHER),
     UNKNOWN("Bilinmeyen", MainCategory.OTHER);
 

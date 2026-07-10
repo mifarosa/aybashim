@@ -2,11 +2,28 @@
   <main class="app-shell">
     <section v-if="!token" class="auth-layout">
       <div class="brand-panel">
-        <p class="eyebrow">aybashim</p>
-        <h1>Ekstrelerden okunabilir finans takibine.</h1>
-        <p class="lead">
-          Banka hareketlerini içeri al, kategorileri kontrol et, aylık akışı tek ekrandan izle.
-        </p>
+        <div class="brand-copy">
+          <p class="eyebrow">aybashim</p>
+          <h1>Ay sonunu beklemeden akışı gör.</h1>
+          <p class="lead">
+            Ekstrelerini içeri al, gelir ve gideri sakin bir panelde izle, neyin nereye gittiğini tek bakışta yakala.
+          </p>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+          <img :src="heroImage" alt="" />
+          <div class="floating-card balance-card">
+            <span>Bu ay denge</span>
+            <strong><SensitiveAmount :value="authPreviewBalance" :reveal="showAmounts" /></strong>
+          </div>
+          <div class="floating-card flow-card">
+            <span>Gelir / gider</span>
+            <div class="mini-bars">
+              <i class="income" :style="{ height: `${authPreviewIncome}%` }"></i>
+              <i class="expense" :style="{ height: `${authPreviewExpense}%` }"></i>
+              <i class="saving" :style="{ height: `${authPreviewSaving}%` }"></i>
+            </div>
+          </div>
+        </div>
       </div>
 
       <form class="auth-panel" @submit.prevent="submitAuth">
@@ -50,26 +67,76 @@
             {{ showAmounts ? 'Tutarları gizle' : 'Tutarları göster' }}
           </button>
           <span>{{ user?.name }}</span>
+          <button class="ghost" type="button" @click="toggleAccountPanel">Hesap</button>
           <button class="ghost" type="button" @click="logout">Çıkış</button>
         </div>
       </header>
 
+      <section v-if="showAccountPanel" class="account-panel">
+        <div>
+          <p class="eyebrow">Hesap</p>
+          <h2>Profil bilgileri</h2>
+        </div>
+        <form class="account-form" @submit.prevent="updateProfile">
+          <label>
+            Ad Soyad
+            <input v-model.trim="profileForm.name" autocomplete="name" required />
+          </label>
+          <label>
+            E-posta
+            <input v-model.trim="profileForm.email" type="email" autocomplete="email" required />
+          </label>
+          <label>
+            Yeni şifre
+            <input v-model="profileForm.password" type="password" autocomplete="new-password" placeholder="Değişmeyecekse boş bırak" />
+          </label>
+          <button class="primary" type="submit" :disabled="busy">Kaydet</button>
+        </form>
+      </section>
+
+      <section class="dashboard-hero">
+        <div class="dashboard-hero-copy">
+          <p class="eyebrow">Aylık durum</p>
+          <h2>{{ selectedSummaryMonth }} özeti</h2>
+          <p>
+            Gelir, gider ve kategori dağılımını aynı ekranda takip et. Tutarlar kapalıyken hover ile geçici olarak görünür.
+          </p>
+          <div class="hero-stats">
+            <span>
+              Gelir
+              <strong><SensitiveAmount :value="selectedMonthIncomeTotal" :reveal="showAmounts" /></strong>
+            </span>
+            <span>
+              Gider
+              <strong><SensitiveAmount :value="selectedMonthExpenseTotal" :reveal="showAmounts" /></strong>
+            </span>
+            <span>
+              Net
+              <strong><SensitiveAmount :value="selectedMonthIncomeTotal - selectedMonthExpenseTotal" :reveal="showAmounts" /></strong>
+            </span>
+          </div>
+        </div>
+        <div class="dashboard-hero-visual" aria-hidden="true">
+          <img :src="heroImage" alt="" />
+        </div>
+      </section>
+
       <section class="summary-grid">
-        <div class="metric">
+        <div class="metric metric-soft-blue">
           <span>Toplam işlem</span>
           <strong>{{ transactions.length }}</strong>
         </div>
-        <div class="metric">
+        <div class="metric metric-soft-coral">
           <span>Bu ay gider</span>
           <strong><SensitiveAmount :value="currentMonthDebit" :reveal="showAmounts" /></strong>
           <em>{{ currentMonthExpenseLabel }}</em>
         </div>
-        <div class="metric">
+        <div class="metric metric-soft-green">
           <span>Bu ay gelir</span>
           <strong><SensitiveAmount :value="currentMonthCredit" :reveal="showAmounts" /></strong>
           <em>{{ currentMonthIncomeLabel }}</em>
         </div>
-        <div class="metric">
+        <div class="metric metric-soft-yellow">
           <span>Kendime transfer</span>
           <strong>{{ selfTransfers.length }}</strong>
         </div>
@@ -88,7 +155,11 @@
           </label>
           <label class="file-input">
             Ekstre
-            <input type="file" @change="onFileChange" />
+            <span class="file-picker">
+              <span class="file-picker-button">Dosya seç</span>
+              <span class="file-picker-name">{{ upload.file?.name || 'Henüz dosya seçilmedi' }}</span>
+              <input type="file" @change="onFileChange" />
+            </span>
           </label>
           <button class="primary" type="submit" :disabled="busy || !upload.file">
             Yükle
@@ -278,6 +349,7 @@
 <script setup>
 import { computed, defineComponent, h, onMounted, reactive, ref } from 'vue';
 import { apiRequest, clearSession, loadSession, saveSession } from './api';
+import heroImage from './assets/finance-hero.png';
 
 const session = loadSession();
 const token = ref(session.token);
@@ -288,11 +360,22 @@ const messageType = ref('info');
 const authMode = ref('login');
 const activeTab = ref('summary');
 const showAmounts = ref(false);
+const showAccountPanel = ref(false);
 const selectedSummaryMonth = ref(new Date().toISOString().slice(0, 7));
+const authPreviewIncome = 82;
+const authPreviewExpense = 54;
+const authPreviewSaving = 38;
+const authPreviewBalance = 41850;
 
 const authForm = reactive({
   name: '',
   email: '',
+  password: ''
+});
+
+const profileForm = reactive({
+  name: user.value?.name || '',
+  email: user.value?.email || '',
   password: ''
 });
 
@@ -340,21 +423,49 @@ const TransactionTable = defineComponent({
     emptyText: { type: String, default: 'Kayıt bulunamadı.' }
   },
   setup(props) {
+    const sort = reactive({
+      key: 'date',
+      direction: 'desc'
+    });
+    const columns = [
+      { key: 'date', label: 'Tarih' },
+      { key: 'description', label: 'Açıklama' },
+      { key: 'bankName', label: 'Banka' },
+      { key: 'type', label: 'Tip' },
+      { key: 'category', label: 'Kategori' },
+      { key: 'amount', label: 'Tutar', class: 'amount' }
+    ];
+    const sortedTransactions = computed(() => [...props.transactions].sort((left, right) => {
+      const result = compareValues(sortValue(left, sort.key), sortValue(right, sort.key), sort.key);
+      return sort.direction === 'asc' ? result : -result;
+    }));
+    const toggleSort = (key) => {
+      if (sort.key === key) {
+        sort.direction = sort.direction === 'asc' ? 'desc' : 'asc';
+        return;
+      }
+
+      sort.key = key;
+      sort.direction = key === 'date' || key === 'amount' ? 'desc' : 'asc';
+    };
+    const header = (column) => h('button', {
+      class: ['sort-button', { active: sort.key === column.key }],
+      type: 'button',
+      onClick: () => toggleSort(column.key),
+      'aria-sort': sort.key === column.key ? (sort.direction === 'asc' ? 'ascending' : 'descending') : 'none'
+    }, [
+      h('span', column.label),
+      h('span', { class: 'sort-icon', 'aria-hidden': 'true' }, sort.key === column.key ? (sort.direction === 'asc' ? '↑' : '↓') : '↕')
+    ]);
+
     return () => h('div', { class: 'table-wrap' }, [
       props.transactions.length === 0
         ? h('p', { class: 'empty-state' }, props.emptyText)
         : h('table', [
           h('thead', [
-            h('tr', [
-              h('th', 'Tarih'),
-              h('th', 'Açıklama'),
-              h('th', 'Banka'),
-              h('th', 'Tip'),
-              h('th', 'Kategori'),
-              h('th', { class: 'amount' }, 'Tutar')
-            ])
+            h('tr', columns.map((column) => h('th', { class: column.class }, header(column))))
           ]),
-          h('tbody', props.transactions.map((tx) => h('tr', { key: tx.id ?? `${tx.date}-${tx.description}` }, [
+          h('tbody', sortedTransactions.value.map((tx) => h('tr', { key: tx.id ?? `${tx.date}-${tx.description}` }, [
             h('td', tx.date),
             h('td', { class: 'description' }, tx.description),
             h('td', tx.bankName || '-'),
@@ -509,6 +620,10 @@ const selectedMonthExpenseTotal = computed(() => sumTransactions(
   expenseTransactions.value.filter((tx) => tx.date?.startsWith(selectedSummaryMonth.value))
 ));
 
+const selectedMonthIncomeTotal = computed(() => sumTransactions(
+  incomeTransactions.value.filter((tx) => tx.date?.startsWith(selectedSummaryMonth.value))
+));
+
 const pieChartStyle = computed(() => {
   if (selectedMonthSubCategories.value.length === 0) {
     return { background: '#eef2f5' };
@@ -525,16 +640,16 @@ const pieChartStyle = computed(() => {
 });
 
 const pieColors = [
-  '#116b5f',
-  '#b54708',
-  '#2563eb',
-  '#9333ea',
-  '#c2410c',
-  '#0f766e',
-  '#be123c',
-  '#4d7c0f',
-  '#7c3aed',
-  '#64748b'
+  '#72c6b4',
+  '#f2a477',
+  '#8fb4f5',
+  '#c5a3ef',
+  '#f3c86f',
+  '#83d39a',
+  '#ee8fa2',
+  '#a6c873',
+  '#b7a7f1',
+  '#9fb0bf'
 ];
 
 onMounted(() => {
@@ -558,6 +673,7 @@ async function submitAuth() {
     saveSession(auth);
     token.value = auth.token;
     user.value = { id: auth.userId, name: auth.name, email: auth.email };
+    syncProfileForm();
     await loadDashboard();
   } catch (error) {
     withMessage(error.message, 'error');
@@ -587,6 +703,33 @@ async function loadDashboard() {
     if (availableMonths.length > 0 && !availableMonths.includes(selectedSummaryMonth.value)) {
       selectedSummaryMonth.value = availableMonths[0];
     }
+  } catch (error) {
+    withMessage(error.message, 'error');
+  } finally {
+    busy.value = false;
+  }
+}
+
+async function updateProfile() {
+  withMessage('');
+  busy.value = true;
+  try {
+    const payload = {
+      name: profileForm.name,
+      email: profileForm.email,
+      password: profileForm.password
+    };
+    const auth = await apiRequest('/api/auth/me', {
+      method: 'PUT',
+      body: JSON.stringify(payload)
+    }, token.value);
+    saveSession(auth);
+    token.value = auth.token;
+    user.value = { id: auth.userId, name: auth.name, email: auth.email };
+    profileForm.password = '';
+    syncProfileForm();
+    showAccountPanel.value = false;
+    withMessage('Hesap bilgileri güncellendi.', 'success');
   } catch (error) {
     withMessage(error.message, 'error');
   } finally {
@@ -632,10 +775,24 @@ function onFileChange(event) {
   upload.file = event.target.files?.[0] || null;
 }
 
+function toggleAccountPanel() {
+  if (!showAccountPanel.value) {
+    syncProfileForm();
+  }
+  showAccountPanel.value = !showAccountPanel.value;
+}
+
+function syncProfileForm() {
+  profileForm.name = user.value?.name || '';
+  profileForm.email = user.value?.email || '';
+  profileForm.password = '';
+}
+
 function logout() {
   clearSession();
   token.value = null;
   user.value = null;
+  showAccountPanel.value = false;
   transactions.value = [];
   selfTransfers.value = [];
 }
@@ -711,6 +868,28 @@ function groupSources(items, labelFactory) {
   });
 
   return [...groups.values()].sort((a, b) => b.total - a.total);
+}
+
+function sortValue(tx, key) {
+  if (key === 'amount') {
+    return Number(tx.amount || 0);
+  }
+  if (key === 'category') {
+    return `${tx.mainCategory || ''} ${tx.subCategory || ''}`;
+  }
+
+  return tx[key] || '';
+}
+
+function compareValues(left, right, key) {
+  if (key === 'amount') {
+    return left - right;
+  }
+  if (key === 'date') {
+    return String(left).localeCompare(String(right));
+  }
+
+  return String(left).localeCompare(String(right), 'tr', { sensitivity: 'base' });
 }
 
 function isExpenseTransaction(tx) {
